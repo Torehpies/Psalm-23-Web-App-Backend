@@ -4,6 +4,7 @@ import cors from "cors";
 import { connectToDatabase } from "./database";
 import { employeeRouter } from "./employee.routes";
 import { ingredientRouter } from "./ingredients.routes";
+import { productRouter } from "./product.routes";
 
 dotenv.config();
 
@@ -23,8 +24,9 @@ connectToDatabase(ATLAS_URI)
 
     app.use("/employees", employeeRouter);
     app.use("/ingredients", ingredientRouter);
-    app.listen(5200, () => {
-      console.log(`Server running at http://localhost:5200...`);
+    app.use("/products", productRouter);
+    app.listen(4000, () => {
+      console.log(`Server running at http://localhost:6969...`);
     });
   })
   .catch((error) => console.error(error));

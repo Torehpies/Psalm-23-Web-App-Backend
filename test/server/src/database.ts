@@ -2,16 +2,21 @@ import * as mongodb from "mongodb";
 import { Employee } from "./employee";
 import { Ingredient } from "./ingredients";
 import { Product } from "./product";
+import { Clockin } from "./clockin";
+import { Clockout } from "./clockout";
 
 export const collections: {
     employees?: mongodb.Collection<Employee>;
     ingredients?: mongodb.Collection<Ingredient>;
     products?: mongodb.Collection<Product>;
+    clockins?: mongodb.Collection<Clockin>;
+    clockouts?: mongodb.Collection<Clockout>; // Add clockouts collection
 } = {};
 
 export async function connectToDatabase(uri: string) {
     const client = new mongodb.MongoClient(uri);
     await client.connect();
+    console.log("Connected to database"); // Add logging
 
     const db = client.db("meanStackExample");
     await applySchemaValidation(db);
@@ -24,6 +29,13 @@ export async function connectToDatabase(uri: string) {
 
     const productsCollection = db.collection<Product>("products");
     collections.products = productsCollection;
+
+    const clockinsCollection = db.collection<Clockin>("clockins");
+    collections.clockins = clockinsCollection;
+
+    const clockoutsCollection = db.collection<Clockout>("clockouts");
+    collections.clockouts = clockoutsCollection;
+    console.log("Initialized collections"); // Add logging
 }
 
 async function applySchemaValidation(db: mongodb.Db) {
@@ -71,6 +83,10 @@ async function applySchemaValidation(db: mongodb.Db) {
                     bsonType: "string",
                     description: "'unit' is required and is a string",
                 },
+                date: {
+                    bsonType: "date",
+                    description: "'date' is optional and is a date",
+                },
             },
         },
     };
@@ -97,6 +113,56 @@ async function applySchemaValidation(db: mongodb.Db) {
                 date: {
                     bsonType: "date",
                     description: "'date' is optional and is a date",
+                },
+                expirationDate: {
+                    bsonType: "string",
+                    description: "'expirationDate' is optional and is a string",
+                },
+            },
+        },
+    };
+
+    const clockinSchema = {
+        $jsonSchema: {
+            bsonType: "object",
+            required: ["name", "position"],
+            additionalProperties: false,
+            properties: {
+                _id: {},
+                name: {
+                    bsonType: "string",
+                    description: "'name' is required and is a string",
+                },
+                position: {
+                    bsonType: "string",
+                    description: "'position' is required and is a string",
+                },
+                ClockinTime: {
+                    bsonType: "date",
+                    description: "'ClockinTime' is optional and is a date",
+                },
+            },
+        },
+    };
+
+    const clockoutSchema = {
+        $jsonSchema: {
+            bsonType: "object",
+            required: ["name", "position"],
+            additionalProperties: false,
+            properties: {
+                _id: {},
+                name: {
+                    bsonType: "string",
+                    description: "'name' is required and is a string",
+                },
+                position: {
+                    bsonType: "string",
+                    description: "'position' is required and is a string",
+                },
+                ClockoutTime: {
+                    bsonType: "date",
+                    description: "'ClockoutTime' is optional and is a date",
                 },
             },
         },
@@ -131,4 +197,25 @@ async function applySchemaValidation(db: mongodb.Db) {
             await db.createCollection("products", {validator: productSchema});
         }
     });
+
+    // Apply schema validation for clockins
+    await db.command({
+        collMod: "clockins",
+        validator: clockinSchema
+    }).catch(async (error: mongodb.MongoServerError) => {
+        if (error.codeName === "NamespaceNotFound") {
+            await db.createCollection("clockins", {validator: clockinSchema});
+        }
+    });
+
+    // Apply schema validation for clockouts
+    await db.command({
+        collMod: "clockouts",
+        validator: clockoutSchema
+    }).catch(async (error: mongodb.MongoServerError) => {
+        if (error.codeName === "NamespaceNotFound") {
+            await db.createCollection("clockouts", {validator: clockoutSchema});
+        }
+    });
+    console.log("Applied schema validation"); // Add logging
 }

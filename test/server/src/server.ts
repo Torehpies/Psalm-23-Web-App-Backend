@@ -23,7 +23,7 @@ connectToDatabase(ATLAS_URI)
 
     app.use("/employees", employeeRouter);
     app.use("/ingredients", ingredientRouter);
-    app.listen(5200, () => {
+    app.listen(3000, () => {
       console.log(`Server running at http://localhost:5200...`);
     });
   })

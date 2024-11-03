@@ -4,6 +4,7 @@ import { Ingredient } from "./ingredients";
 import { Product } from "./product";
 import { Clockin } from "./clockin";
 import { Clockout } from "./clockout";
+import { ProductDescription } from "./productdescript";
 
 export const collections: {
     employees?: mongodb.Collection<Employee>;
@@ -11,6 +12,7 @@ export const collections: {
     products?: mongodb.Collection<Product>;
     clockins?: mongodb.Collection<Clockin>;
     clockouts?: mongodb.Collection<Clockout>; // Add clockouts collection
+    productDescriptions?: mongodb.Collection<ProductDescription>; // Add productDescriptions collection
 } = {};
 
 export async function connectToDatabase(uri: string) {
@@ -35,6 +37,9 @@ export async function connectToDatabase(uri: string) {
 
     const clockoutsCollection = db.collection<Clockout>("clockouts");
     collections.clockouts = clockoutsCollection;
+
+    const productDescriptionsCollection = db.collection<ProductDescription>("productdescriptions");
+    collections.productDescriptions = productDescriptionsCollection;
     console.log("Initialized collections"); // Add logging
 }
 
@@ -168,6 +173,43 @@ async function applySchemaValidation(db: mongodb.Db) {
         },
     };
 
+    const productDescriptionSchema = {
+        $jsonSchema: {
+            bsonType: "object",
+            required: ["name", "Description"],
+            additionalProperties: false,
+            properties: {
+                _id: {},
+                name: {
+                    bsonType: "string",
+                    description: "'name' is required and is a string",
+                },
+                Description: {
+                    bsonType: "object",
+                    required: ["stock", "unit"],
+                    properties: {
+                        stock: {
+                            bsonType: "number",
+                            description: "'stock' is required and is a number",
+                        },
+                        unit: {
+                            bsonType: "string",
+                            description: "'unit' is required and is a string",
+                        },
+                        date: {
+                            bsonType: "date",
+                            description: "'date' is optional and is a date",
+                        },
+                        expirationDate: {
+                            bsonType: "string",
+                            description: "'expirationDate' is optional and is a string",
+                        },
+                    },
+                },
+            },
+        },
+    };
+
     // Apply schema validation for employees
     await db.command({
         collMod: "employees",
@@ -215,6 +257,16 @@ async function applySchemaValidation(db: mongodb.Db) {
     }).catch(async (error: mongodb.MongoServerError) => {
         if (error.codeName === "NamespaceNotFound") {
             await db.createCollection("clockouts", {validator: clockoutSchema});
+        }
+    });
+
+    // Apply schema validation for productDescriptions
+    await db.command({
+        collMod: "productdescriptions",
+        validator: productDescriptionSchema
+    }).catch(async (error: mongodb.MongoServerError) => {
+        if (error.codeName === "NamespaceNotFound") {
+            await db.createCollection("productdescriptions", {validator: productDescriptionSchema});
         }
     });
     console.log("Applied schema validation"); // Add logging

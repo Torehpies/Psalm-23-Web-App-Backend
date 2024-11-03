@@ -7,6 +7,7 @@ import { ingredientRouter } from "./ingredients.routes";
 import { productRouter } from "./product.routes";
 import { clockinRouter } from "./clockin.routes"; // Import clockinRouter
 import { clockoutRouter } from "./clockout.routes"; // Import clockoutRouter
+import { productDescriptionRouter } from "./productdescript.routes"; // Import productDescriptionRouter
 
 dotenv.config();
 
@@ -30,6 +31,7 @@ connectToDatabase(ATLAS_URI)
     app.use("/products", productRouter);
     app.use("/clockins", clockinRouter); 
     app.use("/clockouts", clockoutRouter); 
+    app.use("/productdescriptions", productDescriptionRouter); // Add productDescriptionRouter
     app.listen(7000, () => {
       console.log(`Server running at http://localhost:7000...`);
     });

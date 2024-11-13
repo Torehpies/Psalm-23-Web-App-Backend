@@ -5,9 +5,8 @@ import { connectToDatabase } from "./database";
 import { employeeRouter } from "./employee.routes";
 import { ingredientRouter } from "./ingredients.routes";
 import { productRouter } from "./product.routes";
-import { clockinRouter } from "./clockin.routes"; // Import clockinRouter
-import { clockoutRouter } from "./clockout.routes"; // Import clockoutRouter
 import { productDescriptionRouter } from "./productdescript.routes"; // Import productDescriptionRouter
+import { attendanceRouter } from "./attendance.routes"; // Import attendanceRouter
 
 dotenv.config();
 
@@ -29,9 +28,8 @@ connectToDatabase(ATLAS_URI)
     app.use("/employees", employeeRouter);
     app.use("/ingredients", ingredientRouter);
     app.use("/products", productRouter);
-    app.use("/clockins", clockinRouter); 
-    app.use("/clockouts", clockoutRouter); 
     app.use("/productdescriptions", productDescriptionRouter); // Add productDescriptionRouter
+    app.use("/attendance", attendanceRouter); // Add attendanceRouter
     app.listen(7000, () => {
       console.log(`Server running at http://localhost:7000...`);
     });

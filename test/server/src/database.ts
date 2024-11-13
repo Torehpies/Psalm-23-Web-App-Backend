@@ -1,6 +1,6 @@
 import * as mongodb from "mongodb";
 import { Employee } from "./employee";
-import { Ingredient } from "./ingredients";
+import { IngredientDetails } from "./ingredientDetails"; // Import IngredientDetails
 import { Product } from "./product";
 import { ProductDescription } from "./productdescript";
 import { AttendanceMonitoring } from "./attendance"; 
@@ -8,7 +8,7 @@ import { AttendanceMonitoring } from "./attendance";
 export const collections: {
     db?: mongodb.Db;
     employees?: mongodb.Collection<Employee>;
-    ingredients?: mongodb.Collection<Ingredient>;
+    ingredientDetails?: mongodb.Collection<IngredientDetails>; // Add ingredientDetails collection
     products?: mongodb.Collection<Product>;
     productDescriptions?: mongodb.Collection<ProductDescription>;
     attendanceMonitoring?: mongodb.Collection<AttendanceMonitoring>; 
@@ -17,7 +17,7 @@ export const collections: {
 export async function connectToDatabase(uri: string) {
     const client = new mongodb.MongoClient(uri);
     await client.connect();
-    console.log("Connected to database"); // Add logging
+    console.log("Connected to database"); 
 
     const db = client.db("meanStackExample");
     collections.db = db; // Set the db property in collections
@@ -26,8 +26,8 @@ export async function connectToDatabase(uri: string) {
     const employeesCollection = db.collection<Employee>("employees");
     collections.employees = employeesCollection;
 
-    const ingredientsCollection = db.collection<Ingredient>("ingredients");
-    collections.ingredients = ingredientsCollection;
+    const ingredientDetailsCollection = db.collection<IngredientDetails>("ingredientDetails");
+    collections.ingredientDetails = ingredientDetailsCollection; 
 
     const productsCollection = db.collection<Product>("products");
     collections.products = productsCollection;
@@ -67,33 +67,6 @@ async function applySchemaValidation(db: mongodb.Db) {
         },
     };
 
-    const ingredientSchema = {
-        $jsonSchema: {
-            bsonType: "object",
-            required: ["name", "stock", "unit"],
-            additionalProperties: false,
-            properties: {
-                _id: {},
-                name: {
-                    bsonType: "string",
-                    description: "'name' is required and is a string",
-                },
-                stock: {
-                    bsonType: "number",
-                    description: "'stock' is required and is a number",
-                },
-                unit: {
-                    bsonType: "string",
-                    description: "'unit' is required and is a string",
-                },
-                date: {
-                    bsonType: "date",
-                    description: "'date' is optional and is a date",
-                },
-            },
-        },
-    };
-
     const productSchema = {
         $jsonSchema: {
             bsonType: "object",
@@ -125,7 +98,6 @@ async function applySchemaValidation(db: mongodb.Db) {
         },
     };
 
-    
     const productDescriptionSchema = {
         $jsonSchema: {
             bsonType: "object",
@@ -202,6 +174,58 @@ async function applySchemaValidation(db: mongodb.Db) {
         },
     };
 
+    const ingredientDetailsSchema = {
+        $jsonSchema: {
+            bsonType: "object",
+            required: ["name", "CurrentStock", "Unit", "PAR", "StockHistory"],
+            additionalProperties: false,
+            properties: {
+                _id: {},
+                name: {
+                    bsonType: "string",
+                    description: "'name' is required and is a string",
+                },
+                CurrentStock: {
+                    bsonType: "number",
+                    description: "'CurrentStock' is required and is a number",
+                },
+                Unit: {
+                    bsonType: "string",
+                    description: "'Unit' is required and is a string",
+                },
+                PAR: {
+                    bsonType: "number",
+                    description: "'PAR' is required and is a number",
+                },
+                StockHistory: {
+                    bsonType: "array",
+                    items: {
+                        bsonType: "object",
+                        required: ["Date", "Price", "Quantity", "EmployeeId"],
+                        properties: {
+                            Date: {
+                                bsonType: "date",
+                                description: "'Date' is required and is a date",
+                            },
+                            Price: {
+                                bsonType: "number",
+                                description: "'Price' is required and is a number",
+                            },
+                            Quantity: {
+                                bsonType: "number",
+                                description: "'Quantity' is required and is a number",
+                            },
+                            EmployeeId: {
+                                bsonType: "string",
+                                description: "'EmployeeId' is required and is a string",
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    };
+
     // Apply schema validation for employees
     await db.command({
         collMod: "employees",
@@ -209,16 +233,6 @@ async function applySchemaValidation(db: mongodb.Db) {
     }).catch(async (error: mongodb.MongoServerError) => {
         if (error.codeName === "NamespaceNotFound") {
             await db.createCollection("employees", {validator: employeeSchema});
-        }
-    });
-
-    // Apply schema validation for ingredients
-    await db.command({
-        collMod: "ingredients",
-        validator: ingredientSchema
-    }).catch(async (error: mongodb.MongoServerError) => {
-        if (error.codeName === "NamespaceNotFound") {
-            await db.createCollection("ingredients", {validator: ingredientSchema});
         }
     });
 
@@ -232,7 +246,6 @@ async function applySchemaValidation(db: mongodb.Db) {
         }
     });
 
-    
     // Apply schema validation for productDescriptions
     await db.command({
         collMod: "productdescriptions",
@@ -250,6 +263,16 @@ async function applySchemaValidation(db: mongodb.Db) {
     }).catch(async (error: mongodb.MongoServerError) => {
         if (error.codeName === "NamespaceNotFound") {
             await db.createCollection("attendanceMonitoring", {validator: attendanceMonitoringSchema});
+        }
+    });
+
+    // Apply schema validation for ingredientDetails
+    await db.command({
+        collMod: "ingredientDetails",
+        validator: ingredientDetailsSchema
+    }).catch(async (error: mongodb.MongoServerError) => {
+        if (error.codeName === "NamespaceNotFound") {
+            await db.createCollection("ingredientDetails", {validator: ingredientDetailsSchema});
         }
     });
 

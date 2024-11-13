@@ -3,10 +3,10 @@ import express from "express";
 import cors from "cors";
 import { connectToDatabase } from "./database";
 import { employeeRouter } from "./employee.routes";
-import { ingredientRouter } from "./ingredients.routes";
 import { productRouter } from "./product.routes";
-import { productDescriptionRouter } from "./productdescript.routes"; // Import productDescriptionRouter
-import { attendanceRouter } from "./attendance.routes"; // Import attendanceRouter
+import { productDescriptionRouter } from "./productdescript.routes";
+import { attendanceRouter } from "./attendance.routes"; 
+import { ingredientDetailsRouter } from "./ingredientDetails.routes"; // Import ingredientDetailsRouter
 
 dotenv.config();
 
@@ -26,10 +26,10 @@ connectToDatabase(ATLAS_URI)
     app.use(express.json());
 
     app.use("/employees", employeeRouter);
-    app.use("/ingredients", ingredientRouter);
     app.use("/products", productRouter);
-    app.use("/productdescriptions", productDescriptionRouter); // Add productDescriptionRouter
-    app.use("/attendance", attendanceRouter); // Add attendanceRouter
+    app.use("/productdescriptions", productDescriptionRouter);
+    app.use("/attendance", attendanceRouter); 
+    app.use("/ingredientDetails", ingredientDetailsRouter); // Add ingredientDetailsRouter
     app.listen(7000, () => {
       console.log(`Server running at http://localhost:7000...`);
     });

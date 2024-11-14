@@ -7,6 +7,7 @@ import { productRouter } from "./product.routes";
 import { productDescriptionRouter } from "./productdescript.routes";
 import { attendanceRouter } from "./attendance.routes"; 
 import { ingredientDetailsRouter } from "./ingredientDetails.routes"; // Import ingredientDetailsRouter
+import { stockHistoryRouter } from "./StockHistory.routes"; // Import stockHistoryRouter
 
 dotenv.config();
 
@@ -30,6 +31,7 @@ connectToDatabase(ATLAS_URI)
     app.use("/productdescriptions", productDescriptionRouter);
     app.use("/attendance", attendanceRouter); 
     app.use("/ingredientDetails", ingredientDetailsRouter); // Add ingredientDetailsRouter
+    app.use("/stockHistory", stockHistoryRouter); // Add stockHistoryRouter
     app.listen(7000, () => {
       console.log(`Server running at http://localhost:7000...`);
     });

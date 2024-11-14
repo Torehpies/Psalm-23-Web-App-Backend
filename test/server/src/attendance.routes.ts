@@ -83,7 +83,7 @@ attendanceRouter.put("/:id/attendance", async (req, res) => {
     console.log(`PUT /attendance/${req.params.id}/attendance`, req.body);
     try {
         const id = req.params.id;
-        const newAttendance = req.body.Attendance[0]; // Assuming the request body contains an array with one object
+        const newAttendance = req.body.Attendance[0]; 
         if (!newAttendance.Date) {
             newAttendance.Date = getCurrentDate();
         }
@@ -114,7 +114,7 @@ attendanceRouter.post("/:id/attendance", async (req, res) => {
     console.log(`POST /attendance/${req.params.id}/attendance`, req.body);
     try {
         const id = req.params.id;
-        const newAttendance = req.body; // Assuming the request body contains the new attendance object
+        const newAttendance = req.body;
         if (!newAttendance.Date) {
             newAttendance.Date = getCurrentDate();
         }

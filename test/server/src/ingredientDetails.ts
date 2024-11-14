@@ -6,10 +6,4 @@ export interface IngredientDetails {
     CurrentStock: number;
     Unit: "Mililiters" | "Liters" | "Grams" | "Kilograms" | string;
     PAR: number;
-    StockHistory: {
-        Date?: Date;
-        Price: number;
-        Quantity: number;
-        EmployeeId: string;
-    }[];
 }

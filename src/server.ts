@@ -2,10 +2,10 @@ import * as dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
 import { connectToDatabase } from "./database";
-import { employeesRouter } from "./employees.routes"; 
-import { ingredientDetailsRouter } from "./ingredientDetails.routes"; 
-import { stockHistoryRouter } from "./StockHistory.routes"; 
-import { usersRouter } from "./Users.routes"; 
+import { employeesRouter } from "./routes/employees.routes"; 
+import { ingredientDetailsRouter } from "./routes/ingredientDetails.routes"; 
+import { stockHistoryRouter } from "./routes/StockHistory.routes"; 
+import { usersRouter } from "./routes/Users.routes"; 
 
 dotenv.config();
 

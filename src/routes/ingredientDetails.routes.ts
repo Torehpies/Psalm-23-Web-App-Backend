@@ -1,5 +1,5 @@
 import * as express from "express";
-import { collections } from "./database";
+import { collections } from "../database";
 import { ObjectId } from "mongodb";
 
 export const ingredientDetailsRouter = express.Router();

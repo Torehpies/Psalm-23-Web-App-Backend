@@ -1,8 +1,8 @@
 import * as mongodb from "mongodb";
-import { IngredientDetails } from "./ingredientDetails"; 
-import { Employees } from "./employees"; 
-import { StockHistory } from "./StockHistory"; 
-import { Users } from "./Users"; // Add this line
+import { IngredientDetails } from "./models/ingredientDetails"; 
+import { Employees } from "./models/employees"; 
+import { StockHistory } from "./models/StockHistory"; 
+import { Users } from "./models/Users"; // Add this line
 
 export const collections: {
     db?: mongodb.Db;

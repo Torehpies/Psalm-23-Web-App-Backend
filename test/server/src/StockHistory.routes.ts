@@ -76,7 +76,6 @@ stockHistoryRouter.post("/", async (req, res) => {
             stockHistory.ingredient._id = convertToObjectId(stockHistory.ingredient._id);
         }
 
-        // Insert the new StockHistory document
         const result = await collections.stockHistory?.insertOne(stockHistory);
 
         if (result?.acknowledged) {
@@ -86,7 +85,7 @@ stockHistoryRouter.post("/", async (req, res) => {
 
             const updateResult = await collections.ingredientDetails?.updateOne(
                 { _id: ingredientId },
-                { $inc: { CurrentStock: quantityToAdd } } // Updated field name for consistency
+                { $inc: { CurrentStock: quantityToAdd } }
             );
 
             if (updateResult && typeof updateResult.modifiedCount === 'number' && updateResult.modifiedCount > 0) {

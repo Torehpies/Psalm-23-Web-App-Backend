@@ -5,6 +5,7 @@ import { connectToDatabase } from "./database";
 import { employeesRouter } from "./employees.routes"; 
 import { ingredientDetailsRouter } from "./ingredientDetails.routes"; 
 import { stockHistoryRouter } from "./StockHistory.routes"; 
+import { usersRouter } from "./Users.routes"; 
 
 dotenv.config();
 
@@ -26,6 +27,7 @@ connectToDatabase(ATLAS_URI)
     app.use("/employees", employeesRouter); 
     app.use("/ingredientDetails", ingredientDetailsRouter); 
     app.use("/stockHistory", stockHistoryRouter); 
+    app.use("/users", usersRouter); // Add this line
     app.listen(7000, () => {
       console.log(`Server running at http://localhost:7000...`);
     });

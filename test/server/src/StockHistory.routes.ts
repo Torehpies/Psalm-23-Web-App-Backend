@@ -7,7 +7,19 @@ stockHistoryRouter.use(express.json());
 
 stockHistoryRouter.get("/", async (_req, res) => {
     try {
-        const stockHistories = await collections.stockHistory?.find({}).toArray();
+        const stockHistories = await collections.stockHistory?.aggregate([
+            {
+                $lookup: {
+                    from: "ingredientDetails",
+                    localField: "ingredient._id",
+                    foreignField: "_id",
+                    as: "ingredient.details"
+                }
+            },
+            {
+                $unwind: "$ingredient.details"
+            }
+        ]).toArray();
         res.status(200).send(stockHistories);
     } catch (error) {
         res.status(500).send(error instanceof Error ? error.message : "Unknown error");
@@ -18,10 +30,23 @@ stockHistoryRouter.get("/:id", async (req, res) => {
     try {
         const id = req.params.id;
         const query = { _id: new ObjectId(id) };
-        const stockHistory = await collections.stockHistory?.findOne(query);
+        const stockHistory = await collections.stockHistory?.aggregate([
+            { $match: query },
+            {
+                $lookup: {
+                    from: "ingredientDetails",
+                    localField: "ingredient._id",
+                    foreignField: "_id",
+                    as: "ingredient.details"
+                }
+            },
+            {
+                $unwind: "$ingredient.details"
+            }
+        ]).toArray();
 
-        if (stockHistory) {
-            res.status(200).send(stockHistory);
+        if (stockHistory && stockHistory.length > 0) {
+            res.status(200).send(stockHistory[0]);
         } else {
             res.status(404).send(`Failed to find a stock history record: ID ${id}`);
         }
@@ -50,10 +75,25 @@ stockHistoryRouter.post("/", async (req, res) => {
         if (stockHistory.ingredient && stockHistory.ingredient._id) {
             stockHistory.ingredient._id = convertToObjectId(stockHistory.ingredient._id);
         }
+
+        // Insert the new StockHistory document
         const result = await collections.stockHistory?.insertOne(stockHistory);
 
         if (result?.acknowledged) {
-            res.status(201).send(`Created a new stock history record: ID ${result.insertedId}.`);
+            // Update the referenced ingredient's current stock
+            const ingredientId = stockHistory.ingredient._id;
+            const quantityToAdd = stockHistory.Quantity;
+
+            const updateResult = await collections.ingredientDetails?.updateOne(
+                { _id: ingredientId },
+                { $inc: { CurrentStock: quantityToAdd } } // Updated field name for consistency
+            );
+
+            if (updateResult && typeof updateResult.modifiedCount === 'number' && updateResult.modifiedCount > 0) {
+                res.status(201).send(`Created a new stock history record: ID ${result.insertedId} and updated stock for ingredient ID ${ingredientId}.`);
+            } else {
+                res.status(500).send(`Stock history created but failed to update the stock for ingredient ID ${ingredientId}.`);
+            }
         } else {
             res.status(500).send("Failed to create a new stock history record.");
         }
@@ -61,6 +101,7 @@ stockHistoryRouter.post("/", async (req, res) => {
         res.status(400).send(error instanceof Error ? error.message : "Unknown error");
     }
 });
+
 
 stockHistoryRouter.put("/:id", async (req, res) => {
     try {

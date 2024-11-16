@@ -1,6 +1,6 @@
 import * as mongodb from "mongodb";
 
-export interface AttendanceMonitoring {
+export interface Employees {
     name: string;
     _id?: mongodb.ObjectId;
     TotalWorkHours?: number;

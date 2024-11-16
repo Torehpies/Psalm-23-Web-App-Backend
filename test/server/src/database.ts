@@ -1,19 +1,13 @@
 import * as mongodb from "mongodb";
-import { Employee } from "./employee";
-import { IngredientDetails } from "./ingredientDetails"; // Import IngredientDetails
-import { Product } from "./product";
-import { ProductDescription } from "./productdescript";
-import { AttendanceMonitoring } from "./attendance"; 
-import { StockHistory } from "./StockHistory"; // Import StockHistory
+import { IngredientDetails } from "./ingredientDetails"; 
+import { Employees } from "./employees"; 
+import { StockHistory } from "./StockHistory"; 
 
 export const collections: {
     db?: mongodb.Db;
-    employees?: mongodb.Collection<Employee>;
-    ingredientDetails?: mongodb.Collection<IngredientDetails>; // Add ingredientDetails collection
-    products?: mongodb.Collection<Product>;
-    productDescriptions?: mongodb.Collection<ProductDescription>;
-    attendanceMonitoring?: mongodb.Collection<AttendanceMonitoring>; 
-    stockHistory?: mongodb.Collection<StockHistory>; // Add stockHistory collection
+    ingredientDetails?: mongodb.Collection<IngredientDetails>; 
+    employees?: mongodb.Collection<Employees>; 
+    stockHistory?: mongodb.Collection<StockHistory>; 
 } = {};
 
 export async function connectToDatabase(uri: string) {
@@ -22,125 +16,23 @@ export async function connectToDatabase(uri: string) {
     console.log("Connected to database"); 
 
     const db = client.db("meanStackExample");
-    collections.db = db; // Set the db property in collections
+    collections.db = db; 
     await applySchemaValidation(db);
-
-    const employeesCollection = db.collection<Employee>("employees");
-    collections.employees = employeesCollection;
 
     const ingredientDetailsCollection = db.collection<IngredientDetails>("ingredientDetails");
     collections.ingredientDetails = ingredientDetailsCollection; 
 
-    const productsCollection = db.collection<Product>("products");
-    collections.products = productsCollection;
-
-    const productDescriptionsCollection = db.collection<ProductDescription>("productdescriptions");
-    collections.productDescriptions = productDescriptionsCollection;
-
-    const attendanceMonitoringCollection = db.collection<AttendanceMonitoring>("attendanceMonitoring");
-    collections.attendanceMonitoring = attendanceMonitoringCollection;
+    const employeesCollection = db.collection<Employees>("employees");
+    collections.employees = employeesCollection;
 
     const stockHistoryCollection = db.collection<StockHistory>("stockHistory");
     collections.stockHistory = stockHistoryCollection;
 
-    console.log("Initialized collections"); // Add logging
+    console.log("Initialized collections"); 
 }
 
 async function applySchemaValidation(db: mongodb.Db) {
-    const employeeSchema = {
-        $jsonSchema: {
-            bsonType: "object",
-            required: ["name", "position", "level"],
-            additionalProperties: false,
-            properties: {
-                _id: {},
-                name: {
-                    bsonType: "string",
-                    description: "'name' is required and is a string",
-                },
-                position: {
-                    bsonType: "string",
-                    description: "'position' is required and is a string",
-                    minLength: 5
-                },
-                level: {
-                    bsonType: "string",
-                    description: "'level' is required and is one of 'junior', 'mid', 'senior'",
-                    enum: ["junior", "mid", "senior"],
-                },
-            },
-        },
-    };
-
-    const productSchema = {
-        $jsonSchema: {
-            bsonType: "object",
-            required: ["name", "stock", "unit"],
-            additionalProperties: false,
-            properties: {
-                _id: {},
-                name: {
-                    bsonType: "string",
-                    description: "'name' is required and is a string",
-                },
-                stock: {
-                    bsonType: "number",
-                    description: "'stock' is required and is a number",
-                },
-                unit: {
-                    bsonType: "string",
-                    description: "'unit' is required and is a string",
-                },
-                date: {
-                    bsonType: "date",
-                    description: "'date' is optional and is a date",
-                },
-                expirationDate: {
-                    bsonType: "string",
-                    description: "'expirationDate' is optional and is a string",
-                },
-            },
-        },
-    };
-
-    const productDescriptionSchema = {
-        $jsonSchema: {
-            bsonType: "object",
-            required: ["name", "Description"],
-            additionalProperties: false,
-            properties: {
-                _id: {},
-                name: {
-                    bsonType: "string",
-                    description: "'name' is required and is a string",
-                },
-                Description: {
-                    bsonType: "object",
-                    required: ["stock", "unit"],
-                    properties: {
-                        stock: {
-                            bsonType: "number",
-                            description: "'stock' is required and is a number",
-                        },
-                        unit: {
-                            bsonType: "string",
-                            description: "'unit' is required and is a string",
-                        },
-                        date: {
-                            bsonType: "date",
-                            description: "'date' is optional and is a date",
-                        },
-                        expirationDate: {
-                            bsonType: "string",
-                            description: "'expirationDate' is optional and is a string",
-                        },
-                    },
-                },
-            },
-        },
-    };
-
-    const attendanceMonitoringSchema = {
+    const employeesSchema = {
         $jsonSchema: {
             bsonType: "object",
             required: ["name", "Attendance"],
@@ -246,40 +138,10 @@ async function applySchemaValidation(db: mongodb.Db) {
     // Apply schema validation for employees
     await db.command({
         collMod: "employees",
-        validator: employeeSchema
+        validator: employeesSchema
     }).catch(async (error: mongodb.MongoServerError) => {
         if (error.codeName === "NamespaceNotFound") {
-            await db.createCollection("employees", {validator: employeeSchema});
-        }
-    });
-
-    // Apply schema validation for products
-    await db.command({
-        collMod: "products",
-        validator: productSchema
-    }).catch(async (error: mongodb.MongoServerError) => {
-        if (error.codeName === "NamespaceNotFound") {
-            await db.createCollection("products", {validator: productSchema});
-        }
-    });
-
-    // Apply schema validation for productDescriptions
-    await db.command({
-        collMod: "productdescriptions",
-        validator: productDescriptionSchema
-    }).catch(async (error: mongodb.MongoServerError) => {
-        if (error.codeName === "NamespaceNotFound") {
-            await db.createCollection("productdescriptions", {validator: productDescriptionSchema});
-        }
-    });
-
-    // Apply schema validation for attendanceMonitoring
-    await db.command({
-        collMod: "attendanceMonitoring",
-        validator: attendanceMonitoringSchema
-    }).catch(async (error: mongodb.MongoServerError) => {
-        if (error.codeName === "NamespaceNotFound") {
-            await db.createCollection("attendanceMonitoring", {validator: attendanceMonitoringSchema});
+            await db.createCollection("employees", {validator: employeesSchema});
         }
     });
 
@@ -303,5 +165,5 @@ async function applySchemaValidation(db: mongodb.Db) {
         }
     });
 
-    console.log("Applied schema validation"); // Add logging
+    console.log("Applied schema validation"); 
 }

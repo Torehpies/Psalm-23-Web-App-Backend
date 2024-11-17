@@ -2,7 +2,7 @@ import * as mongodb from "mongodb";
 import { IngredientDetails } from "./models/ingredientDetails"; 
 import { Employees } from "./models/employees"; 
 import { StockHistory } from "./models/StockHistory"; 
-import { Users } from "./models/Users"; // Add this line
+import { Users } from "./models/user"; // Add this line
 
 export const collections: {
     db?: mongodb.Db;

@@ -10,7 +10,7 @@ stockHistoryRouter.get("/", async (_req, res) => {
         const stockHistories = await collections.stockHistory?.aggregate([
             {
                 $lookup: {
-                    from: "ingredientDetails",
+                    from: "supplies",
                     localField: "ingredient._id",
                     foreignField: "_id",
                     as: "ingredient.details"
@@ -20,8 +20,10 @@ stockHistoryRouter.get("/", async (_req, res) => {
                 $unwind: "$ingredient.details"
             }
         ]).toArray();
+        console.log("Stock history records fetched:", stockHistories);
         res.status(200).send(stockHistories);
     } catch (error) {
+        console.error("Error fetching stock history records:", error);
         res.status(500).send(error instanceof Error ? error.message : "Unknown error");
     }
 });
@@ -34,7 +36,7 @@ stockHistoryRouter.get("/:id", async (req, res) => {
             { $match: query },
             {
                 $lookup: {
-                    from: "ingredientDetails",
+                    from: "supplies",
                     localField: "ingredient._id",
                     foreignField: "_id",
                     as: "ingredient.details"
@@ -83,7 +85,7 @@ stockHistoryRouter.post("/", async (req, res) => {
             const ingredientId = stockHistory.ingredient._id;
             const quantityToAdd = stockHistory.Quantity;
 
-            const updateResult = await collections.ingredientDetails?.updateOne(
+            const updateResult = await collections.supplies?.updateOne(
                 { _id: ingredientId },
                 { $inc: { CurrentStock: quantityToAdd } }
             );

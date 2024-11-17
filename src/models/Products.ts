@@ -1,10 +1,11 @@
 import * as mongodb from "mongodb";
 
-export interface Supplies {
+export interface Products {
     _id?: mongodb.ObjectId;
     name: string;
-    Category: "Supply" | "Ingredient";
-    CurrentStock: number;
     Unit: "Mililiters" | "Liters" | "Grams" | "Kilograms" | string;
+    Price: number;
+    Status: "Active" | "Inactive";
+    CurrentStock: number;
     PAR: number;
 }

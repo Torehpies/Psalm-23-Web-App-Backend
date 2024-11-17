@@ -3,6 +3,8 @@ import { Employees } from "./models/employees";
 import { StockHistory } from "./models/StockHistory"; 
 import { Users } from "./models/Users"; 
 import { Supplies } from "./models/supplies"; 
+import { Products } from "./models/Products"; 
+import { ProduceHistory } from "./models/ProduceHistory"; 
 
 export const collections: {
     db?: mongodb.Db;
@@ -10,6 +12,8 @@ export const collections: {
     stockHistory?: mongodb.Collection<StockHistory>; 
     users?: mongodb.Collection<Users>; 
     supplies?: mongodb.Collection<Supplies>; 
+    products?: mongodb.Collection<Products>; 
+    produceHistory?: mongodb.Collection<ProduceHistory>; 
 } = {};
 
 export async function connectToDatabase(uri: string) {
@@ -32,6 +36,12 @@ export async function connectToDatabase(uri: string) {
 
     const suppliesCollection = db.collection<Supplies>("supplies");
     collections.supplies = suppliesCollection; 
+
+    const productsCollection = db.collection<Products>("products");
+    collections.products = productsCollection; 
+
+    const produceHistoryCollection = db.collection<ProduceHistory>("produceHistory");
+    collections.produceHistory = produceHistoryCollection; 
 
     console.log("Initialized collections"); 
 }
@@ -157,13 +167,18 @@ async function applySchemaValidation(db: mongodb.Db) {
     const suppliesSchema = {
         $jsonSchema: {
             bsonType: "object",
-            required: ["name", "CurrentStock", "Unit", "PAR"],
+            required: ["name", "Category", "CurrentStock", "Unit", "PAR"],
             additionalProperties: false,
             properties: {
                 _id: {},
                 name: {
                     bsonType: "string",
                     description: "'name' is required and is a string",
+                },
+                Category: {
+                    bsonType: "string",
+                    enum: ["Supply", "Ingredient"],
+                    description: "'Category' is required and is either 'Supply' or 'Ingredient'",
                 },
                 CurrentStock: {
                     bsonType: "number",
@@ -176,6 +191,75 @@ async function applySchemaValidation(db: mongodb.Db) {
                 PAR: {
                     bsonType: "number",
                     description: "'PAR' is required and is a number",
+                },
+            },
+        },
+    };
+
+    const productsSchema = {
+        $jsonSchema: {
+            bsonType: "object",
+            required: ["name", "Unit", "Price", "Status", "CurrentStock", "PAR"],
+            additionalProperties: false,
+            properties: {
+                _id: {},
+                name: {
+                    bsonType: "string",
+                    description: "'name' is required and is a string",
+                },
+                Unit: {
+                    bsonType: "string",
+                    description: "'Unit' is required and is a string",
+                },
+                Price: {
+                    bsonType: "number",
+                    description: "'Price' is required and is a number",
+                },
+                Status: {
+                    bsonType: "string",
+                    enum: ["Active", "Inactive"],
+                    description: "'Status' is required and is either 'Active' or 'Inactive'",
+                },
+                CurrentStock: {
+                    bsonType: "number",
+                    description: "'CurrentStock' is required and is a number",
+                },
+                PAR: {
+                    bsonType: "number",
+                    description: "'PAR' is required and is a number",
+                },
+            },
+        },
+    };
+
+    const produceHistorySchema = {
+        $jsonSchema: {
+            bsonType: "object",
+            required: ["product", "Quantity"],
+            additionalProperties: false,
+            properties: {
+                _id: {},
+                product: {
+                    bsonType: "object",
+                    required: ["_id"],
+                    properties: {
+                        _id: {
+                            bsonType: "objectId",
+                            description: "'_id' is required and is an ObjectId",
+                        },
+                    },
+                },
+                Quantity: {
+                    bsonType: "number",
+                    description: "'Quantity' is required and is a number",
+                },
+                Date: {
+                    bsonType: "date",
+                    description: "'Date' is optional and is a date",
+                },
+                EmployeeId: {
+                    bsonType: "objectId",
+                    description: "'EmployeeId' is optional and is an ObjectId",
                 },
             },
         },
@@ -218,6 +302,26 @@ async function applySchemaValidation(db: mongodb.Db) {
     }).catch(async (error: mongodb.MongoServerError) => {
         if (error.codeName === "NamespaceNotFound") {
             await db.createCollection("supplies", {validator: suppliesSchema});
+        }
+    });
+
+    // Apply schema validation for products
+    await db.command({
+        collMod: "products",
+        validator: productsSchema
+    }).catch(async (error: mongodb.MongoServerError) => {
+        if (error.codeName === "NamespaceNotFound") {
+            await db.createCollection("products", {validator: productsSchema});
+        }
+    });
+
+    // Apply schema validation for produceHistory
+    await db.command({
+        collMod: "produceHistory",
+        validator: produceHistorySchema
+    }).catch(async (error: mongodb.MongoServerError) => {
+        if (error.codeName === "NamespaceNotFound") {
+            await db.createCollection("produceHistory", {validator: produceHistorySchema});
         }
     });
 

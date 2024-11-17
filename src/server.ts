@@ -6,6 +6,8 @@ import { employeesRouter } from "./routes/employees.routes";
 import { suppliesRouter } from "./routes/supplies.routes"; 
 import { stockHistoryRouter } from "./routes/StockHistory.routes"; 
 import { usersRouter } from "./routes/Users.routes"; 
+import { productsRouter } from "./routes/Products.routes"; 
+import { produceHistoryRouter } from "./routes/produceHistory.routes"; 
 
 dotenv.config();
 
@@ -28,6 +30,8 @@ connectToDatabase(ATLAS_URI)
     app.use("/supplies", suppliesRouter); 
     app.use("/stockHistory", stockHistoryRouter); 
     app.use("/users", usersRouter);
+    app.use("/products", productsRouter);
+    app.use("/produceHistory", produceHistoryRouter);
     app.listen(7000, () => {
       console.log(`Server running at http://localhost:7000...`);
     });

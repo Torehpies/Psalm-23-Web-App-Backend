@@ -3,7 +3,7 @@ import express from "express";
 import cors from "cors";
 import { connectToDatabase } from "./database";
 import { employeesRouter } from "./routes/employees.routes"; 
-import { ingredientDetailsRouter } from "./routes/ingredientDetails.routes"; 
+import { suppliesRouter } from "./routes/supplies.routes"; 
 import { stockHistoryRouter } from "./routes/StockHistory.routes"; 
 import { usersRouter } from "./routes/Users.routes"; 
 
@@ -25,9 +25,9 @@ connectToDatabase(ATLAS_URI)
     app.use(express.json());
 
     app.use("/employees", employeesRouter); 
-    app.use("/ingredientDetails", ingredientDetailsRouter); 
+    app.use("/supplies", suppliesRouter); 
     app.use("/stockHistory", stockHistoryRouter); 
-    app.use("/users", usersRouter); // Add this line
+    app.use("/users", usersRouter);
     app.listen(7000, () => {
       console.log(`Server running at http://localhost:7000...`);
     });

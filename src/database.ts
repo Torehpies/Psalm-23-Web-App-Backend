@@ -1,15 +1,15 @@
 import * as mongodb from "mongodb";
-import { IngredientDetails } from "./models/ingredientDetails"; 
 import { Employees } from "./models/employees"; 
 import { StockHistory } from "./models/StockHistory"; 
-import { Users } from "./models/Users"; // Add this line
+import { Users } from "./models/Users"; 
+import { Supplies } from "./models/supplies"; 
 
 export const collections: {
     db?: mongodb.Db;
-    ingredientDetails?: mongodb.Collection<IngredientDetails>; 
     employees?: mongodb.Collection<Employees>; 
     stockHistory?: mongodb.Collection<StockHistory>; 
-    users?: mongodb.Collection<Users>; // Add this line
+    users?: mongodb.Collection<Users>; 
+    supplies?: mongodb.Collection<Supplies>; 
 } = {};
 
 export async function connectToDatabase(uri: string) {
@@ -21,17 +21,17 @@ export async function connectToDatabase(uri: string) {
     collections.db = db; 
     await applySchemaValidation(db);
 
-    const ingredientDetailsCollection = db.collection<IngredientDetails>("ingredientDetails");
-    collections.ingredientDetails = ingredientDetailsCollection; 
-
     const employeesCollection = db.collection<Employees>("employees");
     collections.employees = employeesCollection;
 
     const stockHistoryCollection = db.collection<StockHistory>("stockHistory");
     collections.stockHistory = stockHistoryCollection;
 
-    const usersCollection = db.collection<Users>("users"); // Add this line
-    collections.users = usersCollection; // Add this line
+    const usersCollection = db.collection<Users>("users");
+    collections.users = usersCollection;
+
+    const suppliesCollection = db.collection<Supplies>("supplies");
+    collections.supplies = suppliesCollection; 
 
     console.log("Initialized collections"); 
 }
@@ -71,33 +71,6 @@ async function applySchemaValidation(db: mongodb.Db) {
                             },
                         },
                     },
-                },
-            },
-        },
-    };
-
-    const ingredientDetailsSchema = {
-        $jsonSchema: {
-            bsonType: "object",
-            required: ["name", "CurrentStock", "Unit", "PAR"],
-            additionalProperties: false,
-            properties: {
-                _id: {},
-                name: {
-                    bsonType: "string",
-                    description: "'name' is required and is a string",
-                },
-                CurrentStock: {
-                    bsonType: "number",
-                    description: "'CurrentStock' is required and is a number",
-                },
-                Unit: {
-                    bsonType: "string",
-                    description: "'Unit' is required and is a string",
-                },
-                PAR: {
-                    bsonType: "number",
-                    description: "'PAR' is required and is a number",
                 },
             },
         },
@@ -181,6 +154,33 @@ async function applySchemaValidation(db: mongodb.Db) {
         },
     };
 
+    const suppliesSchema = {
+        $jsonSchema: {
+            bsonType: "object",
+            required: ["name", "CurrentStock", "Unit", "PAR"],
+            additionalProperties: false,
+            properties: {
+                _id: {},
+                name: {
+                    bsonType: "string",
+                    description: "'name' is required and is a string",
+                },
+                CurrentStock: {
+                    bsonType: "number",
+                    description: "'CurrentStock' is required and is a number",
+                },
+                Unit: {
+                    bsonType: "string",
+                    description: "'Unit' is required and is a string",
+                },
+                PAR: {
+                    bsonType: "number",
+                    description: "'PAR' is required and is a number",
+                },
+            },
+        },
+    };
+
     // Apply schema validation for employees
     await db.command({
         collMod: "employees",
@@ -188,16 +188,6 @@ async function applySchemaValidation(db: mongodb.Db) {
     }).catch(async (error: mongodb.MongoServerError) => {
         if (error.codeName === "NamespaceNotFound") {
             await db.createCollection("employees", {validator: employeesSchema});
-        }
-    });
-
-    // Apply schema validation for ingredientDetails
-    await db.command({
-        collMod: "ingredientDetails",
-        validator: ingredientDetailsSchema
-    }).catch(async (error: mongodb.MongoServerError) => {
-        if (error.codeName === "NamespaceNotFound") {
-            await db.createCollection("ingredientDetails", {validator: ingredientDetailsSchema});
         }
     });
 
@@ -218,6 +208,16 @@ async function applySchemaValidation(db: mongodb.Db) {
     }).catch(async (error: mongodb.MongoServerError) => {
         if (error.codeName === "NamespaceNotFound") {
             await db.createCollection("users", {validator: usersSchema});
+        }
+    });
+
+    // Apply schema validation for supplies
+    await db.command({
+        collMod: "supplies",
+        validator: suppliesSchema
+    }).catch(async (error: mongodb.MongoServerError) => {
+        if (error.codeName === "NamespaceNotFound") {
+            await db.createCollection("supplies", {validator: suppliesSchema});
         }
     });
 

@@ -6,7 +6,7 @@ import { employeesRouter } from "./routes/employees.routes";
 import { ingredientDetailsRouter } from "./routes/ingredientDetails.routes"; 
 import { stockHistoryRouter } from "./routes/StockHistory.routes"; 
 import { usersRouter } from "./routes/Users.routes"; 
-import { roleRouter as roleRoute } from "./routes/role";
+import roleRoute from "./routes/role";
 import mongoose from "mongoose";
 
 const app = express();

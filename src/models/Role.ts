@@ -4,7 +4,7 @@ const RoleSchema = new mongoose.Schema(
     {
         role:{
             type: String,
-            require: true
+            required: true
         }
     },
     {

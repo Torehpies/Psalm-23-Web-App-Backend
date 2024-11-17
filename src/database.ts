@@ -2,14 +2,13 @@ import * as mongodb from "mongodb";
 import { IngredientDetails } from "./models/ingredientDetails"; 
 import { Employees } from "./models/employees"; 
 import { StockHistory } from "./models/StockHistory"; 
-import { Users } from "./models/user"; // Add this line
 
 export const collections: {
     db?: mongodb.Db;
     ingredientDetails?: mongodb.Collection<IngredientDetails>; 
     employees?: mongodb.Collection<Employees>; 
     stockHistory?: mongodb.Collection<StockHistory>; 
-    users?: mongodb.Collection<Users>; // Add this line
+    
 } = {};
 
 export async function connectToDatabase(uri: string) {
@@ -30,8 +29,6 @@ export async function connectToDatabase(uri: string) {
     const stockHistoryCollection = db.collection<StockHistory>("stockHistory");
     collections.stockHistory = stockHistoryCollection;
 
-    const usersCollection = db.collection<Users>("users"); // Add this line
-    collections.users = usersCollection; // Add this line
 
     console.log("Initialized collections"); 
 }

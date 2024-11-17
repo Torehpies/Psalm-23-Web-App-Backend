@@ -1,27 +1,32 @@
-import mongoose from 'mongoose';
+import mongoose, {Schema, SchemaType} from 'mongoose';
 
 const UserSchema = new mongoose.Schema(
     {
         firstName:{
             type: String,
-            require: true
+            required: true
         },
         lastName:{
             type: String,
-            require: true
+            required: true
         },
         email:{
             type: String,
-            require: true,
+            required: true,
             unique: true
         },
         password:{
             type: String,
-            require: true
+            required: true
         },
         isAdmin:{
             type: Boolean,
             default: false
+        },
+        roles:{
+            type: [Schema.Types.ObjectId],
+            required: true,
+            ref: "Role"
         }
     },
     {

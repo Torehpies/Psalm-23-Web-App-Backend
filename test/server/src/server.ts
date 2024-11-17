@@ -9,7 +9,10 @@ import { clockinRouter } from "./clockin.routes"; // Import clockinRouter
 import { clockoutRouter } from "./clockout.routes"; // Import clockoutRouter
 import { productDescriptionRouter } from "./productdescript.routes"; // Import productDescriptionRouter
 import { loginRouter } from "./login.routes";
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 
 dotenv.config();
 

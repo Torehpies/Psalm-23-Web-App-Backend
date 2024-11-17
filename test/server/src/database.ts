@@ -11,8 +11,13 @@ export const collections: {
     ingredients?: mongodb.Collection<Ingredient>;
     products?: mongodb.Collection<Product>;
     clockins?: mongodb.Collection<Clockin>;
+<<<<<<< Updated upstream
     clockouts?: mongodb.Collection<Clockout>;
     productDescriptions?: mongodb.Collection<ProductDescription>;
+=======
+    clockouts?: mongodb.Collection<Clockout>; // Add clockouts collection
+    productDescriptions?: mongodb.Collection<ProductDescription>; // Add productDescriptions collection
+>>>>>>> Stashed changes
     users?: mongodb.Collection<mongodb.Document>;
 } = {};
 
@@ -21,7 +26,11 @@ export async function connectToDatabase(uri: string) {
     await client.connect();
     console.log("Connected to database");
 
+<<<<<<< Updated upstream
     const db = client.db("sample_mflix");  // Change the database to sample_mflix
+=======
+    const db = client.db("sample_mflix");
+>>>>>>> Stashed changes
     await applySchemaValidation(db);
 
     // Initialize collections
@@ -43,11 +52,19 @@ export async function connectToDatabase(uri: string) {
     const productDescriptionsCollection = db.collection<ProductDescription>("productdescriptions");
     collections.productDescriptions = productDescriptionsCollection;
 
+<<<<<<< Updated upstream
     // Initialize users collection
     const usersCollection = db.collection("test");
     collections.users = usersCollection;
 
     console.log("Initialized collections");
+=======
+     // Initialize users collection
+     const usersCollection = db.collection("test");
+     collections.users = usersCollection;
+
+     console.log("Initialized collections"); // Add logging
+>>>>>>> Stashed changes
 }
 
 async function applySchemaValidation(db: mongodb.Db) {
@@ -223,7 +240,10 @@ async function applySchemaValidation(db: mongodb.Db) {
         },
     };
 
+<<<<<<< Updated upstream
     // User Schema
+=======
+>>>>>>> Stashed changes
     const userSchema = {
         $jsonSchema: {
             bsonType: "object",
@@ -246,6 +266,20 @@ async function applySchemaValidation(db: mongodb.Db) {
             },
         },
     };
+<<<<<<< Updated upstream
+=======
+
+    
+    // Apply schema validation for employees
+    await db.command({
+        collMod: "employees",
+        validator: employeeSchema
+    }).catch(async (error: mongodb.MongoServerError) => {
+        if (error.codeName === "NamespaceNotFound") {
+            await db.createCollection("employees", {validator: employeeSchema});
+        }
+    });
+>>>>>>> Stashed changes
 
     // Apply schema validation for each collection
     const collectionsWithSchemas = [
@@ -271,5 +305,50 @@ async function applySchemaValidation(db: mongodb.Db) {
         }
     }
 
+<<<<<<< Updated upstream
     console.log("Applied schema validation");
 }
+=======
+    // Apply schema validation for clockins
+    await db.command({
+        collMod: "clockins",
+        validator: clockinSchema
+    }).catch(async (error: mongodb.MongoServerError) => {
+        if (error.codeName === "NamespaceNotFound") {
+            await db.createCollection("clockins", {validator: clockinSchema});
+        }
+    });
+
+    // Apply schema validation for clockouts
+    await db.command({
+        collMod: "clockouts",
+        validator: clockoutSchema
+    }).catch(async (error: mongodb.MongoServerError) => {
+        if (error.codeName === "NamespaceNotFound") {
+            await db.createCollection("clockouts", {validator: clockoutSchema});
+        }
+    });
+
+    // Apply schema validation for productDescriptions
+    await db.command({
+        collMod: "productdescriptions",
+        validator: productDescriptionSchema
+    }).catch(async (error: mongodb.MongoServerError) => {
+        if (error.codeName === "NamespaceNotFound") {
+            await db.createCollection("productdescriptions", {validator: productDescriptionSchema});
+        }
+    });
+
+    // Apply schema validation for user
+    await db.command({
+        collMod: "users",
+        validator: userSchema
+    }).catch(async (error: mongodb.MongoServerError) => {
+        if (error.codeName === "NamespaceNotFound") {
+            await db.createCollection("users", {validator:userSchema});
+        }
+    });
+
+    console.log("Applied schema validation"); // Add logging
+}
+>>>>>>> Stashed changes

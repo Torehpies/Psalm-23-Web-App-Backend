@@ -1,39 +1,49 @@
 import * as dotenv from "dotenv";
 import express from "express";
+import mongoose from "mongoose";
 import cors from "cors";
-import { connectToDatabase } from "./database";
-import { employeesRouter } from "./routes/employees.routes"; 
-import { suppliesRouter } from "./routes/supplies.routes"; 
-import { stockHistoryRouter } from "./routes/StockHistory.routes"; 
-import { usersRouter } from "./routes/Users.routes"; 
-import { productsRouter } from "./routes/Products.routes"; 
-import { produceHistoryRouter } from "./routes/produceHistory.routes"; 
+// import { connectToDatabase } from "./database";
+// import { employeesRouter } from "./routes/employees.routes"; 
+// import { ingredientDetailsRouter } from "./routes/ingredientDetails.routes"; 
+// import { stockHistoryRouter } from "./routes/StockHistory.routes"; 
+// import { usersRouter } from "./routes/Users.routes"; 
+import roleRoute from "./routes/role";
+import authRoute from "./routes/auth";
 
+const app = express();
 dotenv.config();
 
-const { ATLAS_URI } = process.env;
+app.use(express.json());
+app.use("/api/role", roleRoute);
+app.use("/api/auth", authRoute);
 
-if (!ATLAS_URI) {
-  console.error(
-    "No ATLAS_URI environment variable has been defined in config.env"
-  );
-  process.exit(1);
+const connectMongoDB = async () => {
+  try {
+    await mongoose.connect(process.env.ATLAS_URI as string);
+    console.log("Connected to Database!");
+
+  } catch (error) {
+    throw error;
+  }
 }
 
-connectToDatabase(ATLAS_URI)
-  .then(() => {
-    const app = express();
-    app.use(cors());
-    app.use(express.json());
+app.listen(8800, () => {
+  connectMongoDB();
+  console.log("Connected to Backend!");
+})
+// connectToDatabase(ATLAS_URI)
+//   .then(() => {
+    
+//     app.use(cors());
+    
 
-    app.use("/employees", employeesRouter); 
-    app.use("/supplies", suppliesRouter); 
-    app.use("/stockHistory", stockHistoryRouter); 
-    app.use("/users", usersRouter);
-    app.use("/products", productsRouter);
-    app.use("/produceHistory", produceHistoryRouter);
-    app.listen(7000, () => {
-      console.log(`Server running at http://localhost:7000...`);
-    });
-  })
-  .catch((error) => console.error("Database connection failed:", error));
+  
+//     app.use("/employees", employeesRouter); 
+//     app.use("/ingredientDetails", ingredientDetailsRouter); 
+//     app.use("/stockHistory", stockHistoryRouter); 
+//     //app.use("/users", usersRouter); // Add this line
+//     app.listen(7000, () => {
+//       console.log(`Server running at http://localhost:7000...`);
+//     });
+//   })
+//   .catch((error) => console.error("Database connection failed:", error));

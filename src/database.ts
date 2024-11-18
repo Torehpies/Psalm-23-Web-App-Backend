@@ -1,19 +1,12 @@
 import * as mongodb from "mongodb";
 import { Employees } from "./models/employees"; 
 import { StockHistory } from "./models/StockHistory"; 
-import { Users } from "./models/Users"; 
-import { Supplies } from "./models/supplies"; 
-import { Products } from "./models/Products"; 
-import { ProduceHistory } from "./models/ProduceHistory"; 
 
 export const collections: {
     db?: mongodb.Db;
     employees?: mongodb.Collection<Employees>; 
     stockHistory?: mongodb.Collection<StockHistory>; 
-    users?: mongodb.Collection<Users>; 
-    supplies?: mongodb.Collection<Supplies>; 
-    products?: mongodb.Collection<Products>; 
-    produceHistory?: mongodb.Collection<ProduceHistory>; 
+    
 } = {};
 
 export async function connectToDatabase(uri: string) {
@@ -31,17 +24,6 @@ export async function connectToDatabase(uri: string) {
     const stockHistoryCollection = db.collection<StockHistory>("stockHistory");
     collections.stockHistory = stockHistoryCollection;
 
-    const usersCollection = db.collection<Users>("users");
-    collections.users = usersCollection;
-
-    const suppliesCollection = db.collection<Supplies>("supplies");
-    collections.supplies = suppliesCollection; 
-
-    const productsCollection = db.collection<Products>("products");
-    collections.products = productsCollection; 
-
-    const produceHistoryCollection = db.collection<ProduceHistory>("produceHistory");
-    collections.produceHistory = produceHistoryCollection; 
 
     console.log("Initialized collections"); 
 }

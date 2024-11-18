@@ -17,27 +17,41 @@ app.use(express.json());
 app.use("/api/role", roleRoute);
 app.use("/api/auth", authRoute);
 
-const connectMongoDB = async () => {
-  try {
-    await mongoose.connect(process.env.ATLAS_URI as string);
-    console.log("Connected to Database!");
+//Error Handling
 
-  } catch (error) {
-    throw error;
-  }
+app.use((obj: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+	const statusCode = obj.status || 500;
+	const message = obj.message || "Something went wrong";
+	res.status(statusCode).json({
+		success: [200, 201,204].some( a => a === obj.status) ? true : false,
+		status: statusCode,
+		message: message,
+		data: obj.data
+	})
+});
+
+//DB Connection
+const connectMongoDB = async () => {
+	try {
+		await mongoose.connect(process.env.ATLAS_URI as string);
+		console.log("Connected to Database!");
+
+	} catch (error) {
+		throw error;
+	}
 }
 
 app.listen(8800, () => {
-  connectMongoDB();
-  console.log("Connected to Backend!");
+	connectMongoDB();
+	console.log("Connected to Backend!");
 })
 // connectToDatabase(ATLAS_URI)
 //   .then(() => {
-    
-//     app.use(cors());
-    
 
-  
+//     app.use(cors());
+
+
+
 //     app.use("/employees", employeesRouter); 
 //     app.use("/ingredientDetails", ingredientDetailsRouter); 
 //     app.use("/stockHistory", stockHistoryRouter); 

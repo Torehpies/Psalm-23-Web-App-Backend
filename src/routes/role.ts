@@ -1,5 +1,4 @@
 import * as express from "express";
-import Role from '../models/Role';
 import { createRole, deleteRole, getAllRoles, updateRole } from "../controllers/role.controller";
 
 const router = express.Router();

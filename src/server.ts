@@ -1,19 +1,21 @@
 import * as dotenv from "dotenv";
 import express from "express";
-import cors from "cors";
-import { connectToDatabase } from "./database";
-import { employeesRouter } from "./routes/employees.routes"; 
-import { ingredientDetailsRouter } from "./routes/ingredientDetails.routes"; 
-import { stockHistoryRouter } from "./routes/StockHistory.routes"; 
-import { usersRouter } from "./routes/Users.routes"; 
-import roleRoute from "./routes/role";
 import mongoose from "mongoose";
+import cors from "cors";
+// import { connectToDatabase } from "./database";
+// import { employeesRouter } from "./routes/employees.routes"; 
+// import { ingredientDetailsRouter } from "./routes/ingredientDetails.routes"; 
+// import { stockHistoryRouter } from "./routes/StockHistory.routes"; 
+// import { usersRouter } from "./routes/Users.routes"; 
+import roleRoute from "./routes/role";
+import authRoute from "./routes/auth";
 
 const app = express();
 dotenv.config();
 
 app.use(express.json());
 app.use("/api/role", roleRoute);
+app.use("/api/auth", authRoute);
 
 const connectMongoDB = async () => {
   try {

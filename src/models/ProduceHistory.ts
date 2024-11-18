@@ -1,13 +1,15 @@
+import { Schema, model, Types } from "mongoose";
 
-import * as mongodb from "mongodb";
-
-export interface ProduceHistory {
-    _id?: mongodb.ObjectId;
+const produceHistorySchema = new Schema({
     product: {
-        _id: mongodb.ObjectId;
-        details?: any;
-    };
-    Quantity: number;
-    Date?: Date;
-    EmployeeId?: mongodb.ObjectId;
-}
+        _id: { type: Types.ObjectId, ref: 'Products', required: true },
+        details: { type: Schema.Types.Mixed }
+    },
+    Quantity: { type: Number, required: true },
+    Date: { type: Date, default: Date.now },
+    EmployeeId: { type: Types.ObjectId, ref: 'Employees' }
+});
+
+const ProduceHistory = model("ProduceHistory", produceHistorySchema);
+
+export default ProduceHistory;

@@ -1,10 +1,43 @@
-import * as mongodb from "mongodb";
+import mongoose, { Schema } from "mongoose";
 
-export interface Supplies {
-    _id?: mongodb.ObjectId;
-    name: string;
-    Category: "Supply" | "Ingredient";
-    CurrentStock: number;
-    Unit: "Mililiters" | "Liters" | "Grams" | "Kilograms" | string;
-    PAR: number;
-}
+const SuppliesSchema = new mongoose.Schema(
+    {
+        name: {
+            type: String,
+            required: [true, 'Name is required'],
+            trim: true
+        },
+        category: {
+            type: String,
+            enum: {
+                values: ["Supply", "Ingredient"],
+                message: 'Category must be either "Supply" or "Ingredient"'
+            },
+            required: [true, 'Category is required']
+        },
+        currentStock: {
+            type: Number,
+            required: [true, 'Current stock is required'],
+            min: [0, 'Current stock cannot be negative']
+        },
+        unit: {
+            type: String,
+            enum: {
+                values: ["Mililiters", "Liters", "Grams", "Kilograms"],
+                message: 'Unit must be one of "Mililiters", "Liters", "Grams", or "Kilograms"'
+            },
+            required: [true, 'Unit is required']
+        },
+        par: {
+            type: Number,
+            required: [true, 'Par is required'],
+            min: [0, 'Par cannot be negative']
+        }
+    },
+    {
+        timestamps: true,
+        strict: "throw" // Ensure no additional properties are allowed
+    }
+);
+
+export default mongoose.model("Supplies", SuppliesSchema);

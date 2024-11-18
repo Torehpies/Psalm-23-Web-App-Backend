@@ -1,17 +1,20 @@
-import * as mongodb from "mongodb";
+import { Schema, model } from "mongoose";
 
-export interface Employees {
-    name: string;
-    _id?: mongodb.ObjectId;
-    TotalWorkHours?: number;
-    Attendance: [
-        {
-            Date?: Date; 
-            TimeIn?: string; 
-            Timeout?: string; 
-        }
-    ],
-}
+const attendanceSchema = new Schema({
+    Date: { type: Date, default: Date.now },
+    TimeIn: { type: String, required: true },
+    Timeout: { type: String, required: true }
+});
+
+const employeeSchema = new Schema({
+    name: { type: String, required: true },
+    TotalWorkHours: { type: Number, default: 0 },
+    Attendance: { type: [attendanceSchema], default: [] }
+});
+
+const Employee = model("Employee", employeeSchema);
+
+export default Employee;
 
 export function getCurrentTime(): string {
     const now = new Date();

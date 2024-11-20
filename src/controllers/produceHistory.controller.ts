@@ -1,4 +1,3 @@
-
 import { Request, Response } from "express";
 import ProduceHistory from "../models/ProduceHistory";
 import Products from "../models/Products";
@@ -31,6 +30,9 @@ export const createProduceHistory = async (req: Request, res: Response) => {
         await newProduceHistory.save();
 
         // Update the referenced product's current stock
+        if (!newProduceHistory.product) {
+            return res.status(400).send("Product is missing in the produce history.");
+        }
         const productId = newProduceHistory.product._id;
         const quantityToAdd = newProduceHistory.Quantity;
 

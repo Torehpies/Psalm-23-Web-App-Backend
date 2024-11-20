@@ -6,6 +6,12 @@ produceHistoryRouter.use(express.json());
 
 produceHistoryRouter.get("/", getAllProduceHistories);
 produceHistoryRouter.get("/:id", getProduceHistoryById);
-produceHistoryRouter.post("/", createProduceHistory);
-produceHistoryRouter.put("/:id", updateProduceHistory);
-produceHistoryRouter.delete("/:id", deleteProduceHistory);
+produceHistoryRouter.post("/create", async (req, res, next) => {
+    try {
+        await createProduceHistory(req, res);
+    } catch (error) {
+        next(error);
+    }
+});
+produceHistoryRouter.put("/update/:id", updateProduceHistory);
+produceHistoryRouter.delete("/delete/:id", deleteProduceHistory);

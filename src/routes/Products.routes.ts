@@ -12,6 +12,6 @@ productsRouter.use(express.json());
 
 productsRouter.get("/", getAllProducts);
 productsRouter.get("/:id", getProductById);
-productsRouter.post("/", createProduct);
-productsRouter.put("/:id", updateProduct);
-productsRouter.delete("/:id", deleteProduct);
+productsRouter.post("/create", createProduct);
+productsRouter.put("/update/:id", updateProduct);
+productsRouter.delete("/delete/:id", deleteProduct);

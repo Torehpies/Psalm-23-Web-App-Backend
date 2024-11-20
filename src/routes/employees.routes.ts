@@ -1,11 +1,12 @@
 import * as express from "express";
-import { getAllEmployees, getEmployeeById, createEmployee, updateEmployeeAttendance, deleteEmployee } from "../controllers/employees.controller";
+import { getAllEmployees, getEmployeeById, createEmployee, updateEmployee, deleteEmployee } from "../controllers/employees.controller";
 
-export const employeesRouter = express.Router();
-employeesRouter.use(express.json());
+const router = express.Router();
 
-employeesRouter.get("/", getAllEmployees);
-employeesRouter.get("/:id", getEmployeeById);
-employeesRouter.post("/", createEmployee);
-employeesRouter.put("/:id/attendance", updateEmployeeAttendance);
-employeesRouter.delete("/:id", deleteEmployee);
+router.get("/", getAllEmployees);
+router.get("/:id", getEmployeeById);
+router.post("/create", createEmployee);
+router.put("/update/:id", updateEmployee);
+router.delete("/delete/:id", deleteEmployee);
+
+export default router;

@@ -39,7 +39,7 @@ export const createStockHistory = async (req: Request, res: Response) => {
 
         const updateResult = await Supplies.findByIdAndUpdate(
             ingredientId,
-            { $inc: { CurrentStock: quantityToAdd } },
+            { $inc: { currentStock: quantityToAdd } },
             { new: true }
         );
 

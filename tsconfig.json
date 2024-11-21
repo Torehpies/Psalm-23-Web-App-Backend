@@ -8,6 +8,5 @@
       "strict": true,    
       "skipLibCheck": true,
       "outDir": "./dist"
-    },
-    "files":["./src/types.d.ts"],
-}
+    }
+  }

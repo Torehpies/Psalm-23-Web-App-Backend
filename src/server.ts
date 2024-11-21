@@ -9,13 +9,17 @@ import cors from "cors";
 // import { usersRouter } from "./routes/Users.routes"; 
 import roleRoute from "./routes/role";
 import authRoute from "./routes/auth";
+import userRoute from "./routes/user";
+import cookieParser from "cookie-parser";
 
 const app = express();
 dotenv.config();
 
 app.use(express.json());
+app.use(cookieParser());
 app.use("/api/role", roleRoute);
 app.use("/api/auth", authRoute);
+app.use("/api/user", userRoute);
 
 //Error Handling
 

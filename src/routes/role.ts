@@ -1,11 +1,12 @@
 import * as express from "express";
 import { createRole, deleteRole, getAllRoles, updateRole } from "../controllers/role.controller";
+import { verifyAdmin } from "../utils/verifyToken";
 
 const router = express.Router();
 
-router.post("/create", createRole);
+router.post("/create", verifyAdmin, createRole);
 
-router.put("/update/:id", updateRole);
+router.put("/update/:id", verifyAdmin, updateRole);
 
 router.get("/getAll", getAllRoles);
 

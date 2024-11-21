@@ -24,6 +24,25 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
 	return next(CreateSuccess(200, "User registered successfully"));
 }
 
+export const registerAdmin = async (req: Request, res: Response, next: NextFunction) => {
+	const role = await Role.find({});
+	const salt = await bcrypt.genSalt(10);
+	const hashedPassword = await bcrypt.hash(req.body.password, salt);
+    if (!role){
+		return next(CreateError(400, "Role not found"));
+    }
+    const newUser = new User({
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        email: req.body.email,
+        password: hashedPassword,
+		isAdmin: true,
+        roles: role
+    });
+	await newUser.save();
+	return next(CreateSuccess(200, "Admin registered successfully"));
+}
+
 export const login = async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const user = await User.findOne({ email: req.body.email })

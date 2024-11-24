@@ -16,7 +16,7 @@ import cookieParser from "cookie-parser";
 const app = express();
 dotenv.config();
 
-app.use(cors()); // Add this line to use CORS middleware
+app.use(cors()); 
 app.use(express.json());
 app.use(cookieParser());
 app.use("/api/role", roleRoute);
@@ -29,7 +29,6 @@ app.use("/api/attendance", attendanceRouter);
 app.use("/api/stockHistory", stockHistoryRouter);
 app.use("/api/user", userRoute);
 
-//Error Handling
 
 app.use((obj: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
 	const statusCode = obj.status || 500;

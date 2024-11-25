@@ -16,7 +16,7 @@ import cookieParser from "cookie-parser";
 const app = express();
 dotenv.config();
 
-app.use(cors()); // Add this line to use CORS middleware
+app.use(cors()); 
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
@@ -33,7 +33,6 @@ app.use("/api/attendance", attendanceRouter);
 app.use("/api/stockHistory", stockHistoryRouter);
 app.use("/api/user", userRoute);
 
-//Error Handling
 
 app.use((obj: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
 	const statusCode = obj.status || 500;
@@ -61,19 +60,3 @@ app.listen(8800, () => {
 	connectMongoDB();
 	console.log("Connected to Backend!");
 })
-// connectToDatabase(ATLAS_URI)
-//   .then(() => {
-
-//     app.use(cors());
-
-
-
-//     app.use("/employees", employeesRouter); 
-//     app.use("/ingredientDetails", ingredientDetailsRouter); 
-//     app.use("/stockHistory", stockHistoryRouter); 
-//     //app.use("/users", usersRouter); // Add this line
-//     app.listen(7000, () => {
-//       console.log(`Server running at http://localhost:7000...`);
-//     });
-//   })
-//   .catch((error) => console.error("Database connection failed:", error));

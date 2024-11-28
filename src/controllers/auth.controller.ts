@@ -7,6 +7,7 @@ import jwt from 'jsonwebtoken';
 import nodeMailer from 'nodemailer';
 import { CreateError } from '../utils/error';
 import { CreateSuccess } from '../utils/success';
+import { VerifyErrors } from 'jsonwebtoken';
 
 export const register = async (req: Request, res: Response, next: NextFunction) => {
 	const role = await Role.find({role: 'User'});
@@ -83,7 +84,7 @@ export const sendEmail = async (req: Request, res: Response, next: NextFunction)
 	const email = req.body.email;
 	const user = await User.findOne({email: {$regex: '^' + email + '$', $options: 'i'}});
 	if (!user){
-		return next(CreateError(404, "User not found to rest the email"));
+		return next(CreateError(404, "User not found to test the email"));
 	}
 	const payload = {
 		email: user.email
@@ -134,6 +135,36 @@ export const sendEmail = async (req: Request, res: Response, next: NextFunction)
 		}else {
 			await newToken.save();
 			return next(CreateSuccess(200, "Email sent successfully"));
+		}
+	})
+}
+
+export const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
+	const token = req.body.token;
+	const newPassword = req.body.newPassword;
+
+	jwt.verify(token, process.env.JWT_SECRET as string, async (err: VerifyErrors | null, decoded: any) => {
+		if(err){
+			return next(CreateError(500, "Invalid or expired token"));
+		}else{
+			const response = decoded;
+			const user = await User.findOne({email: {$regex: '^' + response.email + '$', $options: 'i'}});
+			if (!user) {
+				return next(CreateError(404, "User not found"));
+			}
+			const salt = await bcrypt.genSalt(10);
+			const hashedPassword = await bcrypt.hash(newPassword, salt);
+			user.password = hashedPassword;
+			try {
+				const updatedUser = await User.findOneAndUpdate(
+					{_id: user._id},
+					{$set: user},
+					{new: true}
+				)
+				return next(CreateSuccess(200, "Password reset successfully"));
+			} catch (error) {
+				return next(CreateError(500, "Something went wrong while resetting the password"));
+			}
 		}
 	})
 }

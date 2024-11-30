@@ -22,10 +22,6 @@ const SuppliesSchema = new mongoose.Schema(
         },
         unit: {
             type: String,
-            enum: {
-                values: ["Mililiters", "Liters", "Grams", "Kilograms"],
-                message: 'Unit must be one of "Mililiters", "Liters", "Grams", or "Kilograms"'
-            },
             required: [true, 'Unit is required']
         },
         par: {
@@ -36,7 +32,7 @@ const SuppliesSchema = new mongoose.Schema(
     },
     {
         timestamps: true,
-        strict: "throw" // Ensure no additional properties are allowed
+        strict: "throw" 
     }
 );
 

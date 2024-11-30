@@ -33,7 +33,6 @@ app.use("/api/attendance", attendanceRouter);
 app.use("/api/stockHistory", stockHistoryRouter);
 app.use("/api/user", userRoute);
 
-
 app.use((obj: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
 	const statusCode = obj.status || 500;
 	const message = obj.message || "Something went wrong";

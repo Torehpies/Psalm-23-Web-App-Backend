@@ -7,7 +7,7 @@ import jwt from 'jsonwebtoken';
 import nodeMailer from 'nodemailer';
 import { CreateError } from '../utils/error';
 import { CreateSuccess } from '../utils/success';
-import { VerifyErrors } from 'jsonwebtoken';
+import { VerifyErrors, JwtPayload } from 'jsonwebtoken';
 
 export const register = async (req: Request, res: Response, next: NextFunction) => {
 	const role = await Role.find({role: 'User'});
@@ -84,7 +84,7 @@ export const sendEmail = async (req: Request, res: Response, next: NextFunction)
 	const email = req.body.email;
 	const user = await User.findOne({email: {$regex: '^' + email + '$', $options: 'i'}});
 	if (!user){
-		return next(CreateError(404, "User not found to test the email"));
+		return next(CreateError(404, "User not found to reset the password"));
 	}
 	const payload = {
 		email: user.email
@@ -141,10 +141,11 @@ export const sendEmail = async (req: Request, res: Response, next: NextFunction)
 
 export const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
 	const token = req.body.token;
-	const newPassword = req.body.newPassword;
+	const newPassword = req.body.password;
 
-	jwt.verify(token, process.env.JWT_SECRET as string, async (err: VerifyErrors | null, decoded: any) => {
+	jwt.verify(token, process.env.JWT_SECRET as string, async (err: jwt.VerifyErrors | null, decoded: any) => {
 		if(err){
+			//console.log(err);
 			return next(CreateError(500, "Invalid or expired token"));
 		}else{
 			const response = decoded;

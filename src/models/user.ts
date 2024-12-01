@@ -1,5 +1,14 @@
 import mongoose, {Schema} from 'mongoose';
 
+export enum Role {
+    Admin = 'admin',
+    Manager = 'manager',
+    Baker = 'baker',
+    Barista = 'barista',
+    Cashier = 'cashier',
+    Helper = 'helper',
+}
+
 const UserSchema = new mongoose.Schema(
     {
         firstName:{
@@ -10,9 +19,10 @@ const UserSchema = new mongoose.Schema(
             type: String,
             required: true
         },
-        position:{
+        role:{
             type: String,
-            required: true
+            required: true,
+            default: 'helper'
         },
         email:{
             type: String,
@@ -23,6 +33,11 @@ const UserSchema = new mongoose.Schema(
             type: String,
             required: true
         },
+        permissions:{
+            type: [String],
+            default: []
+        }
+        /*
         isAdmin:{
             type: Boolean,
             default: false
@@ -32,6 +47,7 @@ const UserSchema = new mongoose.Schema(
             required: true,
             ref: "Role"
         }
+        */
     },
     {
         timestamps: true

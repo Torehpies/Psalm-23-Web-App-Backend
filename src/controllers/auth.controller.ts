@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from 'express';
-import Role from "../models/Role";
 import User from "../models/User";
 import UserToken from "../models/UserToken";
 import bcrypt from 'bcryptjs';
@@ -8,73 +7,92 @@ import nodeMailer from 'nodemailer';
 import { CreateError } from '../utils/error';
 import { CreateSuccess } from '../utils/success';
 import { VerifyErrors, JwtPayload } from 'jsonwebtoken';
+import { getRolePermissions, Role } from '../utils/rolePermissions';
 
 export const register = async (req: Request, res: Response, next: NextFunction) => {
-	const role = await Role.find({role: 'User'});
+	//const role = await Role.find({role: 'User'});
+	const { firstName, lastName, email, password, position } = req.body;
+
+	const existingUser = await User.findOne({ email });
+    if (existingUser) {
+		return next(CreateError(400, "Email already exists"));
+    }
+
 	const salt = await bcrypt.genSalt(10);
 	const hashedPassword = await bcrypt.hash(req.body.password, salt);
-    if (!role){
-		return next(CreateError(400, "Role not found"));
-    }
+	const lowercasePosition : string = position.toLowerCase();
+	const permissions = getRolePermissions(lowercasePosition as Role);
+	
     const newUser = new User({
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-		position: req.body.position,
-        email: req.body.email,
+        firstName,
+        lastName,
+        role: lowercasePosition,
+        email,
         password: hashedPassword,
-        roles: role
+		permissions
     });
-	await newUser.save();
-	return next(CreateSuccess(200, "User registered successfully"));
+
+	try {
+		await newUser.save();
+		return next(CreateSuccess(200, "User registered successfully"));	
+	} catch (error) {
+		console.log(error);
+		return next(CreateError(500,"Something went wrong"))
+	}
+	
 }
 
-export const registerAdmin = async (req: Request, res: Response, next: NextFunction) => {
-	const role = await Role.find({});
-	const salt = await bcrypt.genSalt(10);
-	const hashedPassword = await bcrypt.hash(req.body.password, salt);
-    if (!role){
-		return next(CreateError(400, "Role not found"));
-    }
-    const newUser = new User({
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        email: req.body.email,
-        password: hashedPassword,
-		isAdmin: true,
-        roles: role
-    });
-	await newUser.save();
-	return next(CreateSuccess(200, "Admin registered successfully"));
-}
+// export const registerAdmin = async (req: Request, res: Response, next: NextFunction) => {
+// 	const role = await Role.find({});
+// 	const salt = await bcrypt.genSalt(10);
+// 	const hashedPassword = await bcrypt.hash(req.body.password, salt);
+//     if (!role){
+// 		return next(CreateError(400, "Role not found"));
+//     }
+//     const newUser = new User({
+//         firstName: req.body.firstName,
+//         lastName: req.body.lastName,
+//         email: req.body.email,
+//         password: hashedPassword,
+// 		isAdmin: true,
+//         roles: role
+//     });
+// 	await newUser.save();
+// 	return next(CreateSuccess(200, "Admin registered successfully"));
+// }
 
 export const login = async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const user = await User.findOne({ email: req.body.email })
-		.populate("roles", "role");
-
 		if (!user) {
-			return next(CreateError(404, "User not found"));
+			return next(CreateError(404, "Email not found"));
 		}
 		
-		const { roles } = user;
-
 		const isPasswordCorrect = await bcrypt.compare(req.body.password, user.password);
 		if(!isPasswordCorrect){
 			return next(CreateError(400, "Password is incorrect"));
 		}
 
 		const token = jwt.sign(
-			{id: user._id, isAdmin: user.isAdmin, roles: roles},
+			{id: user._id, role: user.role},
 			process.env.JWT_SECRET as string,
+			{expiresIn: "1hr"},
 		)
 
-		res.cookie("access_token", token, {httpOnly: true})
-		.status(200)
-		.json({
-				status: 200,
-				message: "Login Success",
-				data: user
-			})
+		 res.status(200).json({
+			token,
+			user: {
+			  role: user.role,
+			  permissions: user.permissions,
+			},
+		  });
+		// res.cookie("access_token", token, {httpOnly: true})
+		// .status(200)
+		// .json({
+		// 		status: 200,
+		// 		message: "Login Success",
+		// 		data: user
+		// 	})
 	} catch (error) {
 		return next(CreateError(500, "Something went wrong"));
 	}
@@ -84,7 +102,7 @@ export const sendEmail = async (req: Request, res: Response, next: NextFunction)
 	const email = req.body.email;
 	const user = await User.findOne({email: {$regex: '^' + email + '$', $options: 'i'}});
 	if (!user){
-		return next(CreateError(404, "User not found to reset the password"));
+		return next(CreateError(404, "Email not found"));
 	}
 	const payload = {
 		email: user.email

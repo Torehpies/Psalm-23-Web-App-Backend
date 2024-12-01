@@ -3,7 +3,7 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import employeesRouter from "./routes/employees.routes"; 
-import roleRoute from "./routes/role";
+// import roleRoute from "./routes/role";
 import authRoute from "./routes/auth";
 import { productsRouter } from "./routes/Products.routes";
 import { suppliesRouter } from "./routes/supplies.routes";
@@ -23,7 +23,7 @@ app.use(cors({
 	origin: "http://localhost:4200",
 	credentials: true
 }))
-app.use("/api/role", roleRoute);
+// app.use("/api/role", roleRoute);
 app.use("/api/auth", authRoute);
 app.use("/api/products", productsRouter);
 app.use("/api/supplies", suppliesRouter);

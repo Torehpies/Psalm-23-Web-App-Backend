@@ -7,7 +7,7 @@ import nodeMailer from 'nodemailer';
 import { CreateError } from '../utils/error';
 import { CreateSuccess } from '../utils/success';
 import { VerifyErrors, JwtPayload } from 'jsonwebtoken';
-import { getRolePermissions, Role } from '../utils/rolePermissions';
+// import { getRolePermissions, Role } from '../utils/rolePermissions';
 
 export const register = async (req: Request, res: Response, next: NextFunction) => {
 	//const role = await Role.find({role: 'User'});
@@ -21,15 +21,14 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
 	const salt = await bcrypt.genSalt(10);
 	const hashedPassword = await bcrypt.hash(req.body.password, salt);
 	const lowercasePosition : string = position.toLowerCase();
-	const permissions = getRolePermissions(lowercasePosition as Role);
+	//const permissions = getRolePermissions(lowercasePosition as Role);
 	
     const newUser = new User({
         firstName,
         lastName,
         role: lowercasePosition,
         email,
-        password: hashedPassword,
-		permissions
+        password: hashedPassword
     });
 
 	try {
@@ -41,25 +40,6 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
 	}
 	
 }
-
-// export const registerAdmin = async (req: Request, res: Response, next: NextFunction) => {
-// 	const role = await Role.find({});
-// 	const salt = await bcrypt.genSalt(10);
-// 	const hashedPassword = await bcrypt.hash(req.body.password, salt);
-//     if (!role){
-// 		return next(CreateError(400, "Role not found"));
-//     }
-//     const newUser = new User({
-//         firstName: req.body.firstName,
-//         lastName: req.body.lastName,
-//         email: req.body.email,
-//         password: hashedPassword,
-// 		isAdmin: true,
-//         roles: role
-//     });
-// 	await newUser.save();
-// 	return next(CreateSuccess(200, "Admin registered successfully"));
-// }
 
 export const login = async (req: Request, res: Response, next: NextFunction) => {
 	try {
@@ -81,10 +61,6 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 
 		 res.status(200).json({
 			token,
-			user: {
-			  role: user.role,
-			  permissions: user.permissions,
-			},
 		  });
 		// res.cookie("access_token", token, {httpOnly: true})
 		// .status(200)

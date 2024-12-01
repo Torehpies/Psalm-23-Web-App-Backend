@@ -32,22 +32,7 @@ const UserSchema = new mongoose.Schema(
         password:{
             type: String,
             required: true
-        },
-        permissions:{
-            type: [String],
-            default: []
         }
-        /*
-        isAdmin:{
-            type: Boolean,
-            default: false
-        },
-        roles:{
-            type: [Schema.Types.ObjectId],
-            required: true,
-            ref: "Role"
-        }
-        */
     },
     {
         timestamps: true

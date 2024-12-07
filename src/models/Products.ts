@@ -8,7 +8,6 @@ const ProductsSchema = new mongoose.Schema(
         },
         Unit: {
             type: String,
-            enum: ["Mililiters", "Liters", "Grams", "Kilograms"],
             required: true
         },
         Price: {

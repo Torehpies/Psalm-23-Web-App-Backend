@@ -10,6 +10,10 @@ const ProductsSchema = new mongoose.Schema(
             type: String,
             required: true
         },
+        Category:{
+            type: String,
+            required: true
+        },
         Price: {
             type: Number,
             required: true

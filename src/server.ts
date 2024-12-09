@@ -15,6 +15,7 @@ import { usedSuppliesRouter } from "./routes/usedSupplies.routes";
 import cookieParser from "cookie-parser";
 import scrappingRouter from "./routes/scrapping.routes";
 import ordersRouter from "./routes/orders.routes";
+import orderPerformanceRouter from "./routes/OrderPerformance.routes";
 
 const app = express();
 dotenv.config();
@@ -25,7 +26,7 @@ app.use(cookieParser());
 app.use(cors({
 	origin: "http://localhost:4200",
 	credentials: true
-}))
+}));
 app.use("/api/role", roleRoute);
 app.use("/api/auth", authRoute);
 app.use("/api/products", productsRouter);
@@ -38,7 +39,7 @@ app.use("/api/user", userRoute);
 app.use("/api/usedSupplies", usedSuppliesRouter);
 app.use("/api/scrapping", scrappingRouter);
 app.use("/api/orders", ordersRouter);
-
+app.use("/api/orderPerformance", orderPerformanceRouter);
 
 app.use((obj: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
 	const statusCode = obj.status || 500;

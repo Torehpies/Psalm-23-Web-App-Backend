@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import Orders from "../models/Orders";
 import Products from "../models/Products";
+import { updateOrderPerformanceLogic } from "./OrderPerformance.controller";
 
 export const getOrders = async (_req: Request, res: Response) => {
     try {
@@ -38,6 +39,14 @@ export const createOrder = async (req: Request, res: Response) => {
 
         const newOrder = new Orders({ ...req.body, TotalAmount: totalAmount });
         await newOrder.save();
+        
+        const today = new Date();
+        const productData = products.map((product: any) => ({
+            productId: product._id,
+            quantity: product.Quantity
+        }));
+        await updateOrderPerformanceLogic(today, productData);
+
         res.status(201).send(`Created a new order: ID ${newOrder._id}`);
     } catch (error) {
         res.status(400).send(error instanceof Error ? error.message : "Unknown error");
@@ -57,6 +66,15 @@ export const updateOrder = async (req: Request, res: Response) => {
         }
 
         const updatedOrder = await Orders.findByIdAndUpdate(req.params.id, { ...req.body, TotalAmount: totalAmount }, { new: true });
+        if (updatedOrder) {
+            const today = new Date();
+            const productData = products.map((product: any) => ({
+                productId: product._id,
+                quantity: product.Quantity
+            }));
+            await updateOrderPerformanceLogic(today, productData);
+        }
+
         if (!updatedOrder) {
             res.status(404).send("Order not found");
         } else {

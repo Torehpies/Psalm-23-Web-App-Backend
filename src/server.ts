@@ -11,7 +11,10 @@ import { produceHistoryRouter } from "./routes/produceHistory.routes";
 import attendanceRouter from "./routes/attendance.routes";
 import { stockHistoryRouter } from "./routes/StockHistory.routes";
 import userRoute from "./routes/user";
+import { usedSuppliesRouter } from "./routes/usedSupplies.routes";
 import cookieParser from "cookie-parser";
+import scrappingRouter from "./routes/scrapping.routes";
+import ordersRouter from "./routes/orders.routes";
 
 const app = express();
 dotenv.config();
@@ -32,6 +35,9 @@ app.use("/api/produceHistory", produceHistoryRouter);
 app.use("/api/attendance", attendanceRouter);
 app.use("/api/stockHistory", stockHistoryRouter);
 app.use("/api/user", userRoute);
+app.use("/api/usedSupplies", usedSuppliesRouter);
+app.use("/api/scrapping", scrappingRouter);
+app.use("/api/orders", ordersRouter);
 
 app.use((obj: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
 	const statusCode = obj.status || 500;

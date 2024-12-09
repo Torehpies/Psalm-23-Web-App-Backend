@@ -13,5 +13,11 @@ stockHistoryRouter.post("/create", async (req, res, next) => {
         next(error);
     }
 });
-stockHistoryRouter.put("/:id", updateStockHistory);
+stockHistoryRouter.put("/:id", async (req, res, next) => {
+    try {
+        await updateStockHistory(req, res);
+    } catch (error) {
+        next(error);
+    }
+});
 stockHistoryRouter.delete("/:id", deleteStockHistory);

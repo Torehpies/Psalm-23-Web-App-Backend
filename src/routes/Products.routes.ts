@@ -1,6 +1,7 @@
 import * as express from "express";
 import {
     getAllProducts,
+    getAllCategories,
     getProductById,
     createProduct,
     updateProduct,
@@ -11,6 +12,7 @@ export const productsRouter = express.Router();
 productsRouter.use(express.json());
 
 productsRouter.get("/", getAllProducts);
+productsRouter.get("/categories",getAllCategories);
 productsRouter.get("/:id", getProductById);
 productsRouter.post("/create", createProduct);
 productsRouter.put("/update/:id", updateProduct);

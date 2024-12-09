@@ -6,25 +6,25 @@ const ProductsSchema = new mongoose.Schema(
             type: String,
             required: true
         },
-        Unit: {
+        unit: {
             type: String,
             enum: ["Mililiters", "Liters", "Grams", "Kilograms"],
             required: true
         },
-        Price: {
+        price: {
             type: Number,
             required: true
         },
-        Status: {
+        status: {
             type: String,
             enum: ["Active", "Inactive"],
             required: true
         },
-        CurrentStock: {
+        currentStock: {
             type: Number,
             required: true
         },
-        PAR: {
+        par: {
             type: Number,
             required: true
         }

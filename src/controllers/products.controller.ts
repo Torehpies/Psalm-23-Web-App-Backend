@@ -1,11 +1,19 @@
-
 import { Request, Response } from "express";
-import Products from "../models/Products";
+import Products from "../models/Product";
 
 export const getAllProducts = async (_req: Request, res: Response) => {
     try {
         const products = await Products.find({});
         res.status(200).send(products);
+    } catch (error) {
+        res.status(500).send(error instanceof Error ? error.message : "Unknown error");
+    }
+};
+
+export const getAllCategories = async (_req: Request, res: Response) => {
+    try {
+        const categories = await Products.distinct("unit");
+        res.status(200).send(categories);
     } catch (error) {
         res.status(500).send(error instanceof Error ? error.message : "Unknown error");
     }

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import ProduceHistory from "../models/ProduceHistory";
-import Products from "../models/Products";
+import Products from "../models/Product";
 
 export const getAllProduceHistories = async (_req: Request, res: Response) => {
     try {

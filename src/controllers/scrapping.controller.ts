@@ -33,10 +33,10 @@ export const createScrapping = async (req: Request, res: Response) => {
         if (!selectedProduct) {
             return res.status(404).send("Product not found");
         }
-        if (selectedProduct.CurrentStock < Quantity) {
+        if (selectedProduct.currentStock < Quantity) {
             return res.status(400).send("Insufficient stock");
         }
-        selectedProduct.CurrentStock -= Quantity;
+        selectedProduct.currentStock -= Quantity;
         await selectedProduct.save();
 
         const newScrapping = new Scrapping(req.body);
@@ -61,10 +61,10 @@ export const updateScrapping = async (req: Request, res: Response) => {
         }
 
         const quantityDifference = Quantity - scrapping.Quantity;
-        if (selectedProduct.CurrentStock < quantityDifference) {
+        if (selectedProduct.currentStock < quantityDifference) {
             return res.status(400).send("Insufficient stock");
         }
-        selectedProduct.CurrentStock -= quantityDifference;
+        selectedProduct.currentStock -= quantityDifference;
         await selectedProduct.save();
 
         await Scrapping.findByIdAndUpdate(req.params.id, { $set: req.body }, { new: true });

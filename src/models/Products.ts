@@ -6,7 +6,7 @@ const ProductsSchema = new mongoose.Schema(
             type: String,
             required: true
         },
-        Unit: {
+        unit: {
             type: String,
             required: true
         },
@@ -14,16 +14,16 @@ const ProductsSchema = new mongoose.Schema(
             type: String,
             required: true
         },
-        Price: {
+        price: {
             type: Number,
             required: true
         },
-        Status: {
+        status: {
             type: String,
             enum: ["Active", "Inactive"],
             required: true
         },
-        CurrentStock: {
+        currentStock: {
             type: Number,
             required: true
         },

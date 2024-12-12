@@ -16,6 +16,9 @@ import cookieParser from "cookie-parser";
 import scrappingRouter from "./routes/scrapping.routes";
 import ordersRouter from "./routes/orders.routes";
 import orderPerformanceRouter from "./routes/OrderPerformance.routes";
+import salesRouter from "./routes/sales.routes"; // Ensure this line is present
+import dailySalesRouter from "./routes/dailySales.routes";
+import monthlySalesRouter from "./routes/monthlySales.routes";
 
 const app = express();
 dotenv.config();
@@ -40,6 +43,9 @@ app.use("/api/usedSupplies", usedSuppliesRouter);
 app.use("/api/scrapping", scrappingRouter);
 app.use("/api/orders", ordersRouter);
 app.use("/api/orderPerformance", orderPerformanceRouter);
+app.use("/api/sales", salesRouter); // Ensure this line is present
+app.use("/api/dailySales", dailySalesRouter);
+app.use("/api/monthlySales", monthlySalesRouter);
 
 app.use((obj: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
 	const statusCode = obj.status || 500;
@@ -57,7 +63,6 @@ const connectMongoDB = async () => {
 	try {
 		await mongoose.connect(process.env.ATLAS_URI as string);
 		console.log("Connected to Database!");
-
 	} catch (error) {
 		throw error;
 	}

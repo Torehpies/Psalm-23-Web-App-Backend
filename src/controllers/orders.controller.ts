@@ -33,7 +33,7 @@ export const createOrder = async (req: Request, res: Response) => {
         for (const product of products) {
             const productDetails = await Products.findById(product._id, 'Price');
             if (productDetails) {
-                totalAmount += productDetails.price * (product.Quantity || 1);
+                totalAmount += (productDetails.price ?? 0) * (product.Quantity || 1);
             }
         }
 
@@ -61,7 +61,7 @@ export const updateOrder = async (req: Request, res: Response) => {
         for (const product of products) {
             const productDetails = await Products.findById(product._id, 'Price');
             if (productDetails) {
-                totalAmount += productDetails.price * (product.Quantity || 1);
+                totalAmount += (productDetails.price ?? 0) * (product.Quantity || 1);
             }
         }
 

@@ -1,6 +1,20 @@
 import mongoose, { Schema } from 'mongoose';
 
-const ProductsSchema = new mongoose.Schema(
+const SizeSchema = new mongoose.Schema(
+    {
+        size: {
+            type: String,
+            required: true
+        },
+        price: {
+            type: Number,
+            required: true
+        }
+    },
+    { _id: false }
+);
+
+const ProductSchema = new mongoose.Schema(
     {
         name: {
             type: String,
@@ -10,14 +24,14 @@ const ProductsSchema = new mongoose.Schema(
             type: String,
             required: true
         },
-        Category:{
+        category: {
             type: String,
             required: true
         },
         price: {
-            type: Number,
-            required: true
+            type: Number
         },
+        sizes: [SizeSchema],
         status: {
             type: String,
             enum: ["Active", "Inactive"],
@@ -37,4 +51,4 @@ const ProductsSchema = new mongoose.Schema(
     }
 );
 
-export default mongoose.model("Products", ProductsSchema);
+export default mongoose.model("Product", ProductSchema);

@@ -36,24 +36,26 @@ export const getProductById = async (req: Request, res: Response, next: NextFunc
 
 export const createProduct = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const newProduct = new Products(req.body);
+        const { name, unit, category, price, sizes, status, currentStock, par } = req.body;
+        const newProduct = new Products({ name, unit, category, price, sizes: sizes || [], status, currentStock, par });
         await newProduct.save();
-        res.status(201).send(`Created a new product: ID ${newProduct._id}`);
+        return next(CreateSuccess(200, "New Product Created", newProduct)); 
     } catch (error) {
-        return next(CreateError(500, "Internal Server Error"));
+        return next(CreateError(500, "Product not Created"));
     }
 };
 
 export const updateProduct = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const updatedProduct = await Products.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!updatedProduct) {
-            res.status(404).send("Product not found");
-        } else {
-            res.status(200).send(`Updated product: ID ${updatedProduct._id}`);
-        }
+        const { name, unit, category, price, sizes, status, currentStock, par } = req.body;
+        const updatedProduct = await Products.findByIdAndUpdate(
+            req.params.id,
+            { name, unit, category, price, sizes: sizes || [], status, currentStock, par },
+            { new: true }
+        );
+        return next(CreateSuccess(200, "Product Updated", updatedProduct)); 
     } catch (error) {
-        return next(CreateError(400, "Unknown Error"));
+        return next(CreateError(500, "Product Not Updated")); 
     }
 };
 

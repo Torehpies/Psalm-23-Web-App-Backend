@@ -7,11 +7,13 @@ import {
     updateProduct,
     deleteProduct
 } from "../controllers/products.controller";
+import { verifyToken } from "../middlewares/authMiddleware";
+import { authorizeRoles } from "../middlewares/roleMiddlewares";
 
 export const productsRouter = express.Router();
 productsRouter.use(express.json());
 
-productsRouter.get("/", getAllProducts);
+productsRouter.get("/", verifyToken, authorizeRoles("admin", "manager", "baker"), getAllProducts);
 productsRouter.get("/categories",getAllCategories);
 productsRouter.get("/:id", getProductById);
 productsRouter.post("/create", createProduct);

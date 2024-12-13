@@ -4,7 +4,7 @@ import { updateOrderPerformance } from "../controllers/OrderPerformance.controll
 
 const router = Router();
 
-router.post("/", createOrder);
+router.post("/create", createOrder);
 router.get("/", getOrders);
 router.get("/:id", getOrderById);
 router.put("/:id", updateOrder);

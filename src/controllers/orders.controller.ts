@@ -1,7 +1,9 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import Orders from "../models/Orders";
 import Products from "../models/Product";
 import { updateOrderPerformanceLogic } from "./OrderPerformance.controller";
+import { CreateSuccess } from "../utils/success";
+import { CreateError } from "../utils/error";
 
 export const getOrders = async (_req: Request, res: Response) => {
     try {
@@ -25,19 +27,21 @@ export const getOrderById = async (req: Request, res: Response) => {
     }
 };
 
-export const createOrder = async (req: Request, res: Response) => {
+export const createOrder = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const products = req.body.products;
-        let totalAmount = 0;
+        console.log(req.body)
+        const {  date, total, paymentMethod, employeeId, products} = req.body;
+        // const products = req.body.products;
+        // let totalAmount = 0;
 
-        for (const product of products) {
-            const productDetails = await Products.findById(product._id, 'Price');
-            if (productDetails) {
-                totalAmount += (productDetails.price ?? 0) * (product.Quantity || 1);
-            }
-        }
+        // for (const product of products) {
+        //     const productDetails = await Products.findById(product._id, 'Price');
+        //     if (productDetails) {
+        //         totalAmount += (productDetails.price ?? 0) * (product.Quantity || 1);
+        //     }
+        // }
 
-        const newOrder = new Orders({ ...req.body, TotalAmount: totalAmount });
+        const newOrder = new Orders({ ...req.body});
         await newOrder.save();
         
         const today = new Date();
@@ -47,9 +51,9 @@ export const createOrder = async (req: Request, res: Response) => {
         }));
         await updateOrderPerformanceLogic(today, productData);
 
-        res.status(201).send(`Created a new order: ID ${newOrder._id}`);
+        return next(CreateSuccess(200, "New Order Created", newOrder));
     } catch (error) {
-        res.status(400).send(error instanceof Error ? error.message : "Unknown error");
+        return next(CreateError(400, "Order not Created"));
     }
 };
 

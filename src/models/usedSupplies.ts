@@ -1,4 +1,3 @@
-
 import mongoose, { Schema } from "mongoose";
 
 const UsedSuppliesSchema = new mongoose.Schema(
@@ -8,7 +7,7 @@ const UsedSuppliesSchema = new mongoose.Schema(
             ref: "Supplies",
             required: true
         },
-        Quantity: {
+        quantity: {
             type: Number,
             required: true,
             min: [0, 'Quantity used cannot be negative']
@@ -17,6 +16,10 @@ const UsedSuppliesSchema = new mongoose.Schema(
             type: Schema.Types.ObjectId,
             ref: "Employee",
             required: true
+        },
+        usedAt: {
+            type: Date,
+            default: Date.now
         }
     },
     {

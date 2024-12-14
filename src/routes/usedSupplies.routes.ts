@@ -6,13 +6,7 @@ usedSuppliesRouter.use(express.json());
 
 usedSuppliesRouter.get("/", getAllUsedSupplies);
 usedSuppliesRouter.get("/:id", getUsedSupplyById);
-usedSuppliesRouter.post("/", async (req, res, next) => {
-    try {
-        await createUsedSupply(req, res);
-    } catch (error) {
-        next(error);
-    }
-});
+usedSuppliesRouter.post("/create", createUsedSupply);
 usedSuppliesRouter.put("/:id", async (req, res, next) => {
     try {
         await updateUsedSupply(req, res);

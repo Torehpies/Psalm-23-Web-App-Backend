@@ -24,11 +24,6 @@ const SuppliesSchema = new mongoose.Schema(
             type: String,
             required: [true, 'Unit is required']
         },
-        ExpiryDate: {
-
-            type: Date,
-            required: false
-        },
         par: {
             type: Number,
             required: [true, 'Par is required'],

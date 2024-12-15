@@ -36,6 +36,10 @@ const UserSchema = new mongoose.Schema(
         totalWorkHours: { 
             type: Number,
             default: 0
+        },
+        isApproved: {
+            type: Boolean,
+            default: false
         }
     },
     {

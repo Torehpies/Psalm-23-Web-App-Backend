@@ -24,3 +24,18 @@ export const getById = async (req: Request, res: Response, next: NextFunction) =
 		return next(CreateError(500, "Internal Server Error"));	
 	}
 }
+
+export const login = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const user = await User.findOne({ email: req.body.email })
+        if (!user) {
+            return next(CreateError(404, "Email not found"));
+        }
+        if (!user.isApproved) {
+            return next(CreateError(403, "User not approved"));
+        }
+        // ...existing code...
+    } catch (error) {
+        return next(CreateError(500, "Something went wrong"));
+    }
+}

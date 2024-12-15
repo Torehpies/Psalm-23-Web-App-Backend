@@ -28,7 +28,8 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
         lastName,
         role: lowercasePosition,
         email,
-        password: hashedPassword
+        password: hashedPassword,
+        isApproved: false
     });
 
 	try {
@@ -46,6 +47,9 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 		const user = await User.findOne({ email: req.body.email })
 		if (!user) {
 			return next(CreateError(404, "Email not found"));
+			}
+		if (!user.isApproved) {
+			return next(CreateError(403, "User not approved"));
 		}
 		
 		const isPasswordCorrect = await bcrypt.compare(req.body.password, user.password);

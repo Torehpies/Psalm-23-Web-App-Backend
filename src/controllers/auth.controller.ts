@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import User from "../models/User";
+import User from "../models/user";
 import UserToken from "../models/UserToken";
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
@@ -162,4 +162,25 @@ export const resetPassword = async (req: Request, res: Response, next: NextFunct
 			}
 		}
 	})
+}
+
+export const getUsername = async (req: Request, res: Response, next: NextFunction) => {
+	const token = req.headers.authorization?.split(" ")[1];
+	if (!token) {
+		return next(CreateError(401, "Access denied. No token provided."));
+	}
+
+	try {
+		const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload;
+		const user = await User.findById(decoded.id).select("firstName lastName");
+		if (!user) {
+			return next(CreateError(404, "User not found"));
+		}
+		res.status(200).json({
+			firstName: user.firstName,
+			lastName: user.lastName
+		});
+	} catch (error) {
+		return next(CreateError(400, "Invalid token"));
+	}
 }

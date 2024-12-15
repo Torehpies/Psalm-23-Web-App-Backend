@@ -3,28 +3,23 @@ import { Schema, model, Types } from "mongoose";
 const produceHistorySchema = new Schema(
     {
         product: {
-            _id: {
-                type: Types.ObjectId,
-                required: true,
-                ref: "Products"
-            },
-            details: {
-                type: Schema.Types.Mixed,
-                required: false
-            }
-        },
-        Quantity: {
-            type: Number,
+            type: Types.ObjectId,
+            ref: "Products",
             required: true
         },
-        Date: {
-            type: Date,
-            default: Date.now
+        quantity: {
+            type: Number,
+            required: true,
+            min: [0, 'Quantity produced cannot be negative']
         },
-        EmployeeId: {
+        employee: {
             type: Types.ObjectId,
             ref: "Employees",
             required: false
+        },
+        producedAt: {
+            type: Date,
+            default: Date.now
         }
     },
     {

@@ -1,13 +1,12 @@
 import { Request, Response, NextFunction } from "express";
-import User from "../models/User";
+import User from "../models/user";
 import { CreateError } from "../utils/error";
 import { CreateSuccess } from "../utils/success";
 
 export const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		const users = await User.find();
-		return next(CreateSuccess(200, "ALl users fetched successfully", users));
-		
+		const users = await User.find().select("firstName lastName role");
+		return next(CreateSuccess(200, "All users fetched successfully", users));
 	} catch (error) {
 		return next(CreateError(500, "Internal Server Error"));	
 	}

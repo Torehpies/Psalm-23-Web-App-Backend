@@ -1,79 +1,95 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import ProduceHistory from "../models/ProduceHistory";
 import Products from "../models/Product";
+import { CreateError } from "../utils/error";
+import { CreateSuccess } from "../utils/success";
 
-export const getAllProduceHistories = async (_req: Request, res: Response) => {
+export const getAllProduceHistories = async (_req: Request, res: Response, next: NextFunction) => {
     try {
-        const produceHistories = await ProduceHistory.find({}).populate('product._id');
-        res.status(200).send(produceHistories);
+        const produceHistories = await ProduceHistory.find({})
+            .populate("product", "name")
+            .select("product quantity producedAt");
+        return next(CreateSuccess(200, "Produce Histories Fetched", produceHistories));
     } catch (error) {
-        res.status(500).send(error instanceof Error ? error.message : "Unknown error");
+        return next(CreateError(500, "Internal Server Error"));
     }
 };
 
-export const getProduceHistoryById = async (req: Request, res: Response) => {
+export const getProduceHistoryById = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const produceHistory = await ProduceHistory.findById(req.params.id).populate('product._id');
+        const produceHistory = await ProduceHistory.findById(req.params.id)
+            .populate("product employee", "name")
+            .select("product quantity producedAt");
         if (!produceHistory) {
-            res.status(404).send("Produce history not found");
+            return next(CreateError(404, "Produce History not found"));
         } else {
-            res.status(200).send(produceHistory);
+            return next(CreateSuccess(200, "Produce History Fetched", produceHistory));
         }
     } catch (error) {
-        res.status(500).send(error instanceof Error ? error.message : "Unknown error");
+        return next(CreateError(500, "Internal Server Error"));
     }
 };
 
-export const createProduceHistory = async (req: Request, res: Response) => {
+export const createProduceHistory = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        const { product, quantity } = req.body;
+        const selectedProduct = await Products.findById(product);
+        if (!selectedProduct) {
+            return next(CreateError(404, "Product not found"));
+        }
+
         const newProduceHistory = new ProduceHistory(req.body);
         await newProduceHistory.save();
 
-        // Update the referenced product's current stock
-        if (!newProduceHistory.product) {
-            return res.status(400).send("Product is missing in the produce history.");
-        }
-        const productId = newProduceHistory.product._id;
-        const quantityToAdd = newProduceHistory.Quantity;
+        selectedProduct.currentStock += quantity;
+        await selectedProduct.save();
 
-        const updateResult = await Products.findByIdAndUpdate(
-            productId,
-            { $inc: { CurrentStock: quantityToAdd } },
-            { new: true }
-        );
-
-        if (updateResult) {
-            res.status(201).send(`Created a new produce history record: ID ${newProduceHistory._id} and updated stock for product ID ${productId}.`);
-        } else {
-            res.status(500).send(`Produce history created but failed to update the stock for product ID ${productId}.`);
-        }
+        return next(CreateSuccess(201, `Created a new produce history record: ID ${newProduceHistory._id} and updated stock for product ID ${product}.`));
     } catch (error) {
-        res.status(400).send(error instanceof Error ? error.message : "Unknown error");
+        return next(CreateError(500, "Internal Server Error"));
     }
 };
 
-export const updateProduceHistory = async (req: Request, res: Response) => {
+export const updateProduceHistory = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const updatedProduceHistory = await ProduceHistory.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!updatedProduceHistory) {
-            res.status(404).send("Produce history not found");
-        } else {
-            res.status(200).send(`Updated produce history record: ID ${updatedProduceHistory._id}`);
+        const { product, quantity } = req.body;
+        const produceHistory = await ProduceHistory.findById(req.params.id);
+        if (!produceHistory) {
+            return next(CreateError(404, "Produce History not found"));
         }
+
+        const selectedProduct = await Products.findById(product);
+        if (!selectedProduct) {
+            return next(CreateError(404, "Product not found"));
+        }
+
+        const quantityDifference = quantity - produceHistory.quantity;
+        selectedProduct.currentStock += quantityDifference;
+        await selectedProduct.save();
+
+        await ProduceHistory.findByIdAndUpdate(req.params.id, { $set: req.body }, { new: true });
+        return next(CreateSuccess(200, `Updated produce history record: ID ${req.params.id}`));
     } catch (error) {
-        res.status(400).send(error instanceof Error ? error.message : "Unknown error");
+        return next(CreateError(500, "Internal Server Error"));
     }
 };
 
-export const deleteProduceHistory = async (req: Request, res: Response) => {
+export const deleteProduceHistory = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const result = await ProduceHistory.findByIdAndDelete(req.params.id);
-        if (!result) {
-            res.status(404).send("Produce history not found");
-        } else {
-            res.status(202).send(`Removed a produce history record: ID ${req.params.id}`);
+        const produceHistory = await ProduceHistory.findById(req.params.id);
+        if (!produceHistory) {
+            return next(CreateError(404, "Produce History not found"));
         }
+
+        const selectedProduct = await Products.findById(produceHistory.product);
+        if (selectedProduct) {
+            selectedProduct.currentStock -= produceHistory.quantity;
+            await selectedProduct.save();
+        }
+
+        await ProduceHistory.findByIdAndDelete(req.params.id);
+        return next(CreateSuccess(202, `Removed a produce history record: ID ${req.params.id}`));
     } catch (error) {
-        res.status(400).send(error instanceof Error ? error.message : "Unknown error");
+        return next(CreateError(500, "Internal Server Error"));
     }
 };

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import Attendance from "../models/attendance";
-import Employee from "../models/employees";
+import User from "../models/user";
 
 export const getAllAttendances = async (_req: Request, res: Response, next: NextFunction) => {
     try {
@@ -26,26 +26,33 @@ export const getAttendanceById = async (req: Request, res: Response, next: NextF
 
 export const createAttendance = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        const userId = req.body.userId;
+        // console.log(`Looking for user with ID: ${userId}`);
+
+        const user = await User.findById(userId);
+        if (!user) {
+            // console.log(`User with ID: ${userId} not found`);
+            return next(res.status(404).send("User not found"));
+        }
+
         const newAttendance = new Attendance(req.body);
         await newAttendance.save();
 
-        const employee = await Employee.findById(newAttendance.employeeId);
-        if (employee) {
-            const [inHours, inMinutes] = newAttendance.TimeIn.split(':').map(Number);
-            const [outHours, outMinutes] = newAttendance.Timeout.split(':').map(Number);
-            const timeInMinutes = inHours * 60 + inMinutes;
-            let timeOutMinutes = outHours * 60 + outMinutes;
-            if (timeOutMinutes <= timeInMinutes) {
-                timeOutMinutes += 24 * 60; // Adjust for times past midnight or exactly at midnight
-            }
-            const workHours = (timeOutMinutes - timeInMinutes) / 60;
-            employee.TotalWorkHours += workHours;
-            await employee.save();
+        const [inHours, inMinutes] = newAttendance.TimeIn.split(':').map(Number);
+        const [outHours, outMinutes] = newAttendance.Timeout.split(':').map(Number);
+        const timeInMinutes = inHours * 60 + inMinutes;
+        let timeOutMinutes = outHours * 60 + outMinutes;
+        if (timeOutMinutes <= timeInMinutes) {
+            timeOutMinutes += 24 * 60; // Adjust for times past midnight or exactly at midnight
         }
+        const workHours = (timeOutMinutes - timeInMinutes) / 60;
+        user.totalWorkHours += workHours;
+        await user.save();
 
-        res.status(201).send(`Created a new attendance record: ID ${newAttendance._id}`);
+        return next(res.status(201).send(`Created a new attendance record: ID ${newAttendance._id}`));
     } catch (error) {
-        next(error);
+        console.error(error);
+        return next(error);
     }
 };
 

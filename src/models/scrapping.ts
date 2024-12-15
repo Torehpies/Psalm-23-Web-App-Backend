@@ -1,10 +1,13 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose from "mongoose";
 
 const scrappingSchema = new mongoose.Schema(
     {
-        item: {
-            type: Schema.Types.ObjectId,
-            refPath: 'itemType',
+        itemId: {
+            type: String,
+            required: true
+        },
+        itemName: {
+            type: String,
             required: true
         },
         itemType: {
@@ -18,7 +21,7 @@ const scrappingSchema = new mongoose.Schema(
             min: [0, 'Quantity used cannot be negative']
         },
         employee: {
-            type: Schema.Types.ObjectId,
+            type: mongoose.Schema.Types.ObjectId,
             ref: "Employee",
             required: true
         },

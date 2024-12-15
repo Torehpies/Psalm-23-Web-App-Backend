@@ -7,8 +7,8 @@ import { CreateError } from "../utils/error";
 
 export const getAllScrapping = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const scrapping = await Scrapping.find({}).populate("supply employee");
-        res.status(200).send(scrapping);
+        const scrapping = await Scrapping.find({}).select("itemId itemName itemType quantity usedAt employee");
+        return next(CreateSuccess(200, "Scrapping retrieved", scrapping));
     } catch (error) {
         res.status(500).send("Internal Server Error");
         console.error(error);
@@ -17,7 +17,7 @@ export const getAllScrapping = async (req: Request, res: Response, next: NextFun
 
 export const getScrappingById = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const scrapping = await Scrapping.findById(req.params.id).populate("supply employee");
+        const scrapping = await Scrapping.findById(req.params.id).select("itemId itemName itemType quantity usedAt employee");
         if (!scrapping) {
             res.status(404).send("Scrapping not found");
         } else {
@@ -31,20 +31,16 @@ export const getScrappingById = async (req: Request, res: Response, next: NextFu
 
 export const createScrapping = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { item, itemType, quantity, usedAt } = req.body;
+        const { itemId, itemName, itemType, quantity, usedAt, employee } = req.body;
         let selectedItem;
 
-        console.log("Request Body:", req.body); // Add this line to log the request body
-
         if (itemType === "Products") {
-            selectedItem = await Products.findById(item);
+            selectedItem = await Products.findById(itemId);
         } else if (itemType === "Supplies") {
-            selectedItem = await Supplies.findById(item);
+            selectedItem = await Supplies.findById(itemId);
         } else {
             return next(CreateError(400, "Invalid item type"));
         }
-
-        console.log("Selected Item:", selectedItem); // Add this line to log the selected item
 
         if (!selectedItem) {
             return next(CreateError(404, "Item not found"));
@@ -55,11 +51,18 @@ export const createScrapping = async (req: Request, res: Response, next: NextFun
         selectedItem.currentStock -= quantity;
         await selectedItem.save();
 
-        const newScrapping = new Scrapping(req.body);
+        const newScrapping = new Scrapping({
+            itemId: selectedItem._id,
+            itemName: selectedItem.name,
+            itemType,
+            quantity,
+            usedAt,
+            employee
+        });
         await newScrapping.save();
         return next(CreateSuccess(200, "Created new scrapping", newScrapping));
     } catch (error) {
-        console.error("Error creating scrapping:", error); // Add this line to log the error
+        console.error("Error creating scrapping:", error);
         return next(CreateError(500, `Failed to create ${error}`));
     }
 };
@@ -71,7 +74,7 @@ export const updateScrapping = async (req: Request, res: Response) => {
             return res.status(404).send("Scrapping not found");
         }
 
-        const { item, itemType, Quantity } = req.body;
+        const { item, itemType, quantity, usedAt, employee } = req.body;
         let selectedItem;
 
         if (itemType === 'Products') {
@@ -84,14 +87,21 @@ export const updateScrapping = async (req: Request, res: Response) => {
             return res.status(404).send(`${itemType} not found`);
         }
 
-        const quantityDifference = Quantity - scrapping.quantity;
+        const quantityDifference = quantity - scrapping.quantity;
         if (selectedItem.currentStock < quantityDifference) {
             return res.status(400).send("Insufficient stock");
         }
         selectedItem.currentStock -= quantityDifference;
         await selectedItem.save();
 
-        await Scrapping.findByIdAndUpdate(req.params.id, { $set: req.body }, { new: true });
+        await Scrapping.findByIdAndUpdate(req.params.id, {
+            itemId: selectedItem._id,
+            itemName: selectedItem.name,
+            itemType,
+            quantity,
+            usedAt,
+            employee
+        }, { new: true });
         res.status(200).send("Scrapping Updated");
     } catch (error) {
         res.status (500).send(error instanceof Error ? error.message : "Unknown error");

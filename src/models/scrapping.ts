@@ -1,14 +1,18 @@
-
 import mongoose, { Schema } from "mongoose";
 
 const scrappingSchema = new mongoose.Schema(
     {
-        supply: {
+        item: {
             type: Schema.Types.ObjectId,
-            ref: "Products",
+            refPath: 'itemType',
             required: true
         },
-        Quantity: {
+        itemType: {
+            type: String,
+            required: true,
+            enum: ['Products', 'Supplies']
+        },
+        quantity: {
             type: Number,
             required: true,
             min: [0, 'Quantity used cannot be negative']
@@ -17,6 +21,10 @@ const scrappingSchema = new mongoose.Schema(
             type: Schema.Types.ObjectId,
             ref: "Employee",
             required: true
+        },
+        usedAt: {
+            type: Date,
+            default: Date.now
         }
     },
     {

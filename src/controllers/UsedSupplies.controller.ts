@@ -9,10 +9,9 @@ export const getAllUsedSupplies = async (req: Request, res: Response, next: Next
         const usedSupplies = await UsedSupplies.find({})
             .populate("supply", "name")
             .select("supply quantity usedAt");
-        res.status(200).send(usedSupplies);
+        return next(CreateSuccess(200, "Used Supplies Fetched" ,usedSupplies));
     } catch (error) {
-        res.status(500).send("Internal Server Error");
-        console.error(error);
+        return next(CreateError(500, "Internal Server Error"));
     }
 };
 

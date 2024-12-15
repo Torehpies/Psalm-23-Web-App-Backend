@@ -6,13 +6,7 @@ scrappingRouter.use(express.json());
 
 scrappingRouter.get("/", getAllScrapping);
 scrappingRouter.get("/:id", getScrappingById);
-scrappingRouter.post("/", async (req, res, next) => {
-    try {
-        await createScrapping(req, res);
-    } catch (error) {
-        next(error);
-    }
-});
+scrappingRouter.post("/create", createScrapping);
 scrappingRouter.put("/:id", async (req, res, next) => {
     try {
         await updateScrapping(req, res);

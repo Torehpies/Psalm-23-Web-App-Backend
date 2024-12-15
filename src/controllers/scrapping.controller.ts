@@ -1,6 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import Scrapping from "../models/scrapping";
 import Products from "../models/Product";
+import Supplies from "../models/supplies";
+import { CreateSuccess } from "../utils/success";
+import { CreateError } from "../utils/error";
 
 export const getAllScrapping = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -26,24 +29,38 @@ export const getScrappingById = async (req: Request, res: Response, next: NextFu
     }
 };
 
-export const createScrapping = async (req: Request, res: Response) => {
+export const createScrapping = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { supply, Quantity } = req.body;
-        const selectedProduct = await Products.findById(supply);
-        if (!selectedProduct) {
-            return res.status(404).send("Product not found");
+        const { item, itemType, quantity, usedAt } = req.body;
+        let selectedItem;
+
+        console.log("Request Body:", req.body); // Add this line to log the request body
+
+        if (itemType === "Products") {
+            selectedItem = await Products.findById(item);
+        } else if (itemType === "Supplies") {
+            selectedItem = await Supplies.findById(item);
+        } else {
+            return next(CreateError(400, "Invalid item type"));
         }
-        if (selectedProduct.currentStock < Quantity) {
-            return res.status(400).send("Insufficient stock");
+
+        console.log("Selected Item:", selectedItem); // Add this line to log the selected item
+
+        if (!selectedItem) {
+            return next(CreateError(404, "Item not found"));
         }
-        selectedProduct.currentStock -= Quantity;
-        await selectedProduct.save();
+        if (selectedItem.currentStock < quantity) {
+            return next(CreateError(400, "Insufficient stock"));
+        }
+        selectedItem.currentStock -= quantity;
+        await selectedItem.save();
 
         const newScrapping = new Scrapping(req.body);
         await newScrapping.save();
-        res.status(201).send(`Created a new scrapping: ID ${newScrapping._id}`);
+        return next(CreateSuccess(200, "Created new scrapping", newScrapping));
     } catch (error) {
-        res.status(500).send(error instanceof Error ? error.message : "Unknown error");
+        console.error("Error creating scrapping:", error); // Add this line to log the error
+        return next(CreateError(500, `Failed to create ${error}`));
     }
 };
 
@@ -54,18 +71,25 @@ export const updateScrapping = async (req: Request, res: Response) => {
             return res.status(404).send("Scrapping not found");
         }
 
-        const { supply, Quantity } = req.body;
-        const selectedProduct = await Products.findById(supply);
-        if (!selectedProduct) {
-            return res.status(404).send("Product not found");
+        const { item, itemType, Quantity } = req.body;
+        let selectedItem;
+
+        if (itemType === 'Products') {
+            selectedItem = await Products.findById(item);
+        } else if (itemType === 'Supplies') {
+            selectedItem = await Supplies.findById(item);
         }
 
-        const quantityDifference = Quantity - scrapping.Quantity;
-        if (selectedProduct.currentStock < quantityDifference) {
+        if (!selectedItem) {
+            return res.status(404).send(`${itemType} not found`);
+        }
+
+        const quantityDifference = Quantity - scrapping.quantity;
+        if (selectedItem.currentStock < quantityDifference) {
             return res.status(400).send("Insufficient stock");
         }
-        selectedProduct.currentStock -= quantityDifference;
-        await selectedProduct.save();
+        selectedItem.currentStock -= quantityDifference;
+        await selectedItem.save();
 
         await Scrapping.findByIdAndUpdate(req.params.id, { $set: req.body }, { new: true });
         res.status(200).send("Scrapping Updated");

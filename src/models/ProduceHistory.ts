@@ -4,7 +4,7 @@ const produceHistorySchema = new Schema(
     {
         product: {
             type: Types.ObjectId,
-            ref: "Products",
+            ref: "Product",
             required: true
         },
         quantity: {
@@ -20,7 +20,11 @@ const produceHistorySchema = new Schema(
         producedAt: {
             type: Date,
             default: Date.now
-        }
+        },
+        expiresAt: {
+            type: Date,
+            default: Date.now
+        },
     },
     {
         timestamps: true

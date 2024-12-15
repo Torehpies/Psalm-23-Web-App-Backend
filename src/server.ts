@@ -7,7 +7,7 @@ import employeesRouter from "./routes/employees.routes";
 import authRoute from "./routes/auth";
 import { productsRouter } from "./routes/Products.routes";
 import { suppliesRouter } from "./routes/supplies.routes";
-import { produceHistoryRouter } from "./routes/produceHistory.routes";
+import produceHistoryRouter from "./routes/produceHistory.routes";
 import attendanceRouter from "./routes/attendance.routes";
 import { stockHistoryRouter } from "./routes/StockHistory.routes";
 import userRoute from "./routes/user";

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import ProduceHistory from "../models/ProduceHistory";
-import Products from "../models/Product";
+import Product from "../models/Product";
 import { CreateError } from "../utils/error";
 import { CreateSuccess } from "../utils/success";
 
@@ -8,10 +8,10 @@ export const getAllProduceHistories = async (_req: Request, res: Response, next:
     try {
         const produceHistories = await ProduceHistory.find({})
             .populate("product", "name")
-            .select("product quantity producedAt");
+            .select("product quantity producedAt expiresAt");
         return next(CreateSuccess(200, "Produce Histories Fetched", produceHistories));
-    } catch (error) {
-        return next(CreateError(500, "Internal Server Error"));
+    } catch (error: any) {
+        return next(CreateError(500, `Failed to fetch produce histories: ${error.message}`));
     }
 };
 
@@ -19,21 +19,21 @@ export const getProduceHistoryById = async (req: Request, res: Response, next: N
     try {
         const produceHistory = await ProduceHistory.findById(req.params.id)
             .populate("product employee", "name")
-            .select("product quantity producedAt");
+            .select("product quantity producedAt expiresAt");
         if (!produceHistory) {
             return next(CreateError(404, "Produce History not found"));
         } else {
             return next(CreateSuccess(200, "Produce History Fetched", produceHistory));
         }
     } catch (error) {
-        return next(CreateError(500, "Internal Server Error"));
+        return next(CreateError(500, `Failed to fetch produce history: ${req.params.id}`));
     }
 };
 
 export const createProduceHistory = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { product, quantity } = req.body;
-        const selectedProduct = await Products.findById(product);
+        const selectedProduct = await Product.findById(product);
         if (!selectedProduct) {
             return next(CreateError(404, "Product not found"));
         }
@@ -45,8 +45,8 @@ export const createProduceHistory = async (req: Request, res: Response, next: Ne
         await selectedProduct.save();
 
         return next(CreateSuccess(201, `Created a new produce history record: ID ${newProduceHistory._id} and updated stock for product ID ${product}.`));
-    } catch (error) {
-        return next(CreateError(500, "Internal Server Error"));
+    } catch (error: any) {
+        return next(CreateError(500, `Failed to create produce history record: ${error.message}`));
     }
 };
 
@@ -58,7 +58,7 @@ export const updateProduceHistory = async (req: Request, res: Response, next: Ne
             return next(CreateError(404, "Produce History not found"));
         }
 
-        const selectedProduct = await Products.findById(product);
+        const selectedProduct = await Product.findById(product);
         if (!selectedProduct) {
             return next(CreateError(404, "Product not found"));
         }
@@ -81,7 +81,7 @@ export const deleteProduceHistory = async (req: Request, res: Response, next: Ne
             return next(CreateError(404, "Produce History not found"));
         }
 
-        const selectedProduct = await Products.findById(produceHistory.product);
+        const selectedProduct = await Product.findById(produceHistory.product);
         if (selectedProduct) {
             selectedProduct.currentStock -= produceHistory.quantity;
             await selectedProduct.save();

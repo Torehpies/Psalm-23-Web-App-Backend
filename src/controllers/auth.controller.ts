@@ -50,6 +50,9 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 			}
 		if (!user.isApproved) {
 			return next(CreateError(403, "User not approved"));
+			}
+		if (user.isDisabled) {
+			return next(CreateError(403, "User is disabled"));
 		}
 		
 		const isPasswordCorrect = await bcrypt.compare(req.body.password, user.password);

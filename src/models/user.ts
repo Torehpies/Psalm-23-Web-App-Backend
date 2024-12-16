@@ -40,7 +40,11 @@ const UserSchema = new mongoose.Schema(
         isApproved: {
             type: Boolean,
             default: false
-        }
+        },
+        isDisabled: {
+            type: Boolean,
+            default: false
+        },
     },
     {
         timestamps: true

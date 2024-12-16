@@ -2,12 +2,13 @@ import { NextFunction, Request, Response } from "express";
 import Orders from "../models/Orders";
 import Products from "../models/Product";
 import { updateOrderPerformanceLogic } from "./OrderPerformance.controller";
+import { updateProductPerformance } from './productPerformance.controller';
 import { CreateSuccess } from "../utils/success";
 import { CreateError } from "../utils/error";
 
 export const getOrders = async (_req: Request, res: Response) => {
     try {
-        const orders = await Orders.find({}).populate('products._id', 'name Quantity Price');
+        const orders = await Orders.find({});
         res.status(200).send(orders);
     } catch (error) {
         res.status(500).send(error instanceof Error ? error.message : "Unknown error");
@@ -49,10 +50,10 @@ export const createOrder = async (req: Request, res: Response, next: NextFunctio
             productId: product._id,
             name: product.name,
             quantity: product.Quantity,
-            price: product.Price,
+            price: product.price,
             size: product.size
         }));
-        await updateOrderPerformanceLogic(today, productData);
+        await updateProductPerformance(today, productData);
         
         // console.log(productData)
         await newOrder.save();
@@ -79,9 +80,13 @@ export const updateOrder = async (req: Request, res: Response) => {
             const today = new Date();
             const productData = products.map((product: any) => ({
                 productId: product._id,
-                quantity: product.Quantity
+                name: product.name,
+                quantity: product.Quantity,
+                price: product.Price,
+                size: product.size
             }));
             await updateOrderPerformanceLogic(today, productData);
+            await updateProductPerformance(today, productData);
         }
 
         if (!updatedOrder) {

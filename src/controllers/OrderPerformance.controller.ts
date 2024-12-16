@@ -57,6 +57,16 @@ export const createOrder = async (req: Request, res: Response) => {
     }
 };
 
+export const getAllOrderPerformance = async (req: Request, res: Response) => {
+    try {
+        const performance = await OrderPerformance.find();
+        res.status(200).send(performance);
+    } catch (error) {
+        res.status(400).send(error instanceof Error ? error.message : "Unknown error");
+    }
+}
+
+
 export const getOrderPerformance = async (req: Request, res: Response) => {
     try {
         const { date } = req.params;

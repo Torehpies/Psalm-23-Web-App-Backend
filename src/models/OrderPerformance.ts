@@ -12,9 +12,9 @@ interface IOrderPerformance extends Document {
 }
 
 const ProductPerformanceSchema: Schema = new Schema({
-    productId: {
+    product: {
         type: Types.ObjectId,
-        ref: 'Products',
+        ref: 'Product',
         required: true
     },
     quantity: {

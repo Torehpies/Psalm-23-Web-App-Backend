@@ -23,8 +23,7 @@ const OrdersSchema = new mongoose.Schema(
         products: [{
             _id: {
                 type: Types.ObjectId,
-                required: true,
-                ref: "Products"
+                required: true
             },
             name: {
                 type: String,

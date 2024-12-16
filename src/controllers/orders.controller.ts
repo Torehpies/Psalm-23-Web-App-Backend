@@ -29,7 +29,7 @@ export const getOrderById = async (req: Request, res: Response) => {
 
 export const createOrder = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        console.log(req.body)
+        // console.log(req.body)
         const {  date, total, paymentMethod, employeeId, products} = req.body;
         // const products = req.body.products;
         // let totalAmount = 0;
@@ -42,15 +42,20 @@ export const createOrder = async (req: Request, res: Response, next: NextFunctio
         // }
 
         const newOrder = new Orders({ ...req.body});
-        await newOrder.save();
         
+        // console.log(newOrder)
         const today = new Date();
         const productData = products.map((product: any) => ({
             productId: product._id,
-            quantity: product.Quantity
+            name: product.name,
+            quantity: product.Quantity,
+            price: product.Price,
+            size: product.size
         }));
         await updateOrderPerformanceLogic(today, productData);
-
+        
+        // console.log(productData)
+        await newOrder.save();
         return next(CreateSuccess(200, "New Order Created", newOrder));
     } catch (error) {
         return next(CreateError(400, "Order not Created"));

@@ -26,6 +26,10 @@ const OrdersSchema = new mongoose.Schema(
                 required: true,
                 ref: "Products"
             },
+            name: {
+                type: String,
+                required: true
+            },
             Quantity: {
                 type: Number,
                 required: true
@@ -33,6 +37,10 @@ const OrdersSchema = new mongoose.Schema(
             size: {
                 type: String,
                 required: false
+            },
+            price: {
+                type: Number,
+                required: true
             }
         }],
     },

@@ -48,11 +48,11 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 		if (!user) {
 			return next(CreateError(404, "Email not found"));
 			}
-		if (!user.isApproved) {
-			return next(CreateError(403, "User not approved"));
+		if (user.status === 'pending') {
+			return next(CreateError(403, "Account not approved"));
 			}
-		if (user.isDisabled) {
-			return next(CreateError(403, "User is disabled"));
+		if (user.status === 'disabled') {
+			return next(CreateError(403, "Account is disabled"));
 		}
 		
 		const isPasswordCorrect = await bcrypt.compare(req.body.password, user.password);

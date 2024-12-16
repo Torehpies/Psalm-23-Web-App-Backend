@@ -27,10 +27,10 @@ export const approveUser = async (req: Request, res: Response, next: NextFunctio
         if (!user) {
             return next(CreateError(404, "User not found"));
         }
-        // if (user.isDisabled) {
-        //     return next(CreateError(403, "User is disabled and cannot be approved"));
-        // }
-        user.isApproved = true;
+        if (user.status === 'disabled') {
+            return next(CreateError(403, "User is disabled and cannot be approved"));
+        }
+        user.status = 'approved';
         await user.save();
         return next(CreateSuccess(200, "User approved successfully"));
     } catch (error) {
@@ -44,7 +44,7 @@ export const disableAccount = async (req: Request, res: Response, next: NextFunc
         if (!user) {
             return next(CreateError(404, "User not found"));
         }
-        user.isDisabled = true;
+        user.status = 'disabled';
         await user.save();
         return next(CreateSuccess(200, "User account disabled successfully"));
     } catch (error) {

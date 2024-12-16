@@ -37,13 +37,10 @@ const UserSchema = new mongoose.Schema(
             type: Number,
             default: 0
         },
-        isApproved: {
-            type: Boolean,
-            default: false
-        },
-        isDisabled: {
-            type: Boolean,
-            default: false
+        status: {
+            type: String,
+            enum: ['pending', 'approved', 'rejected', 'disabled'],
+            default: 'pending'
         },
     },
     {

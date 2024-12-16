@@ -5,7 +5,7 @@ import { CreateSuccess } from "../utils/success";
 
 export const getAllUnapprovedUsers = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const users = await User.find({ isApproved: false }).select("firstName lastName role email");
+        const users = await User.find({ status: "pending" }).select("_id firstName lastName role email");
         return next(CreateSuccess(200, "All unapproved users fetched successfully", users));
     } catch (error) {
         return next(CreateError(500, "Internal Server Error"));
@@ -14,7 +14,7 @@ export const getAllUnapprovedUsers = async (req: Request, res: Response, next: N
 
 export const getAllApprovedUsers = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const users = await User.find({ isApproved: true }).select("firstName lastName role email");
+        const users = await User.find({ status: "approved" }).select("_id firstName lastName role email");
         return next(CreateSuccess(200, "All approved users fetched successfully", users));
     } catch (error) {
         return next(CreateError(500, "Internal Server Error"));
@@ -47,6 +47,20 @@ export const disableAccount = async (req: Request, res: Response, next: NextFunc
         user.status = 'disabled';
         await user.save();
         return next(CreateSuccess(200, "User account disabled successfully"));
+    } catch (error) {
+        return next(CreateError(500, "Internal Server Error"));
+    }
+}
+
+export const rejectAccount = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return next(CreateError(404, "User not found"));
+        }
+        user.status = 'rejected';
+        await user.save();
+        return next(CreateSuccess(200, "User account rejected successfully"));
     } catch (error) {
         return next(CreateError(500, "Internal Server Error"));
     }

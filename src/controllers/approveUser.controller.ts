@@ -98,3 +98,20 @@ export const deleteAccount = async (req: Request, res: Response, next: NextFunct
     }
 }
 
+export const enableAccount = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return next(CreateError(404, "User not found"));
+        }
+        if (user.status !== 'disabled') {
+            return next(CreateError(403, "User account is not disabled"));
+        }
+        user.status = 'approved';
+        await user.save();
+        return next(CreateSuccess(200, "User account enabled successfully"));
+    } catch (error) {
+        return next(CreateError(500, "Internal Server Error"));
+    }
+}
+

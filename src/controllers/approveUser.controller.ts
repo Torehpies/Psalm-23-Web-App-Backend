@@ -86,3 +86,15 @@ export const updateAccount = async (req: Request, res: Response, next: NextFunct
     }
 }
 
+export const deleteAccount = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const user = await User.findByIdAndDelete(req.params.id);
+        if (!user) {
+            return next(CreateError(404, "User not found"));
+        }
+        return next(CreateSuccess(200, "User account deleted successfully"));
+    } catch (error) {
+        return next(CreateError(500, "Internal Server Error"));
+    }
+}
+

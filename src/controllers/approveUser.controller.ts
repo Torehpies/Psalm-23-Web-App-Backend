@@ -14,8 +14,8 @@ export const getAllUnapprovedUsers = async (req: Request, res: Response, next: N
 
 export const getAllApprovedUsers = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const users = await User.find({ status: "approved" }).select("_id firstName lastName role email");
-        return next(CreateSuccess(200, "All approved users fetched successfully", users));
+        const users = await User.find({ status: { $in: ["approved", "disabled"] } }).select("_id firstName lastName role email status");
+        return next(CreateSuccess(200, "All approved and disabled users fetched successfully", users));
     } catch (error) {
         return next(CreateError(500, "Internal Server Error"));
     }

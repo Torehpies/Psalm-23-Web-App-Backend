@@ -65,3 +65,24 @@ export const rejectAccount = async (req: Request, res: Response, next: NextFunct
         return next(CreateError(500, "Internal Server Error"));
     }
 }
+
+export const updateAccount = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return next(CreateError(404, "User not found"));
+        }
+        const { firstName, lastName, role, email, status } = req.body;
+        if (firstName) user.firstName = firstName;
+        if (lastName) user.lastName = lastName;
+        if (role) user.role = role;
+        if (email) user.email = email;
+        if (status) user.status = status;
+
+        await user.save();
+        return next(CreateSuccess(200, "User account updated successfully"));
+    } catch (error) {
+        return next(CreateError(500, "Internal Server Error"));
+    }
+}
+

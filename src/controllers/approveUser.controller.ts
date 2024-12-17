@@ -115,3 +115,22 @@ export const enableAccount = async (req: Request, res: Response, next: NextFunct
     }
 }
 
+export const reappeal = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const user = await User.findOne({ email: req.body.email });
+        if (!user) {
+            return next(CreateError(404, "Email not found"));
+        }
+        if (user.status !== 'rejected') {
+            return next(CreateError(400, "Only rejected accounts can re-appeal"));
+        }
+
+        user.status = 'pending';
+        await user.save();
+
+        return next(CreateSuccess(200, "Re-appeal successful. Awaiting for approval"));
+    } catch (error) {
+        return next(CreateError(500, "Re-appeal failed"));
+    }
+}
+

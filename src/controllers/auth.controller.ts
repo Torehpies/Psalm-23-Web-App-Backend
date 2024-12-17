@@ -54,6 +54,9 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 		if (user.status === 'disabled') {
 			return next(CreateError(403, "Account is disabled"));
 		}
+		if (user.status === 'rejected') {
+			return next(CreateError(403, "Account Registration is rejected. "));
+		}
 		
 		const isPasswordCorrect = await bcrypt.compare(req.body.password, user.password);
 		if(!isPasswordCorrect){

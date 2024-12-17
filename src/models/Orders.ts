@@ -1,6 +1,15 @@
 import mongoose from "mongoose";
 import { Schema, model, Types } from "mongoose";
 
+export interface ProductOrders {
+    productId: mongoose.Schema.Types.ObjectId;
+    name: string;
+    quantity: number;
+    price: number;
+    size: string;
+    category: string;
+}
+
 const OrdersSchema = new mongoose.Schema(
     {   
         Date: {

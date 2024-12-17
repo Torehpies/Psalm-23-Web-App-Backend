@@ -3,6 +3,11 @@ import mongoose, { Schema, Document } from 'mongoose';
 interface IProductPerformance extends Document {
     date: Date;
     total: number;
+    categories: ICategory[];
+}
+
+export interface ICategory extends Document {
+    category: string;
     products: IProduct[];
 }
 
@@ -20,12 +25,17 @@ const ProductSchema: Schema = new Schema({
     size: { type: String, required: false },
     quantity: { type: Number, required: true },
     price: { type: Number, required: true }
+}, { _id: false }); // Disable automatic _id field
+
+const CategorySchema: Schema = new Schema({
+    category: { type: String, required: true },
+    products: { type: [ProductSchema], _id: false }
 });
 
 const ProductPerformanceSchema: Schema = new Schema({
     date: { type: Date, required: true },
     total: { type: Number, required: true },
-    products: { type: [ProductSchema], _id: false } // Prevent _id generation for products
+    categories: { type: [CategorySchema], _id: false }
 }, { timestamps: true });
 
 export default mongoose.model<IProductPerformance>('ProductPerformance', ProductPerformanceSchema);

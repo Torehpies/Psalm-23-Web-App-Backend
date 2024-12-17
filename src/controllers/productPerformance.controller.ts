@@ -1,9 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
-import ProductPerformance, { IProduct } from '../models/productPerformance';
+import ProductPerformance, { IProduct, ICategory } from '../models/productPerformance';
 import { CreateSuccess } from '../utils/success';
 import { CreateError } from '../utils/error';
+import { ProductOrders } from '../models/Orders';
 
-export const updateProductPerformance = async (date: Date, products: IProduct[]): Promise<void> => {
+export const updateProductPerformance = async (date: Date, products: ProductOrders[]): Promise<void> => {
     try {
         const startOfDay = new Date(date.setHours(0, 0, 0, 0));
         console.log('Updating product performance:', date, products);
@@ -14,22 +15,66 @@ export const updateProductPerformance = async (date: Date, products: IProduct[])
             // Update existing product performance
             let total = 0;
             products.forEach(product => {
-                const existingProduct = productPerformance.products.find(p => p.productId.toString() === product.productId.toString() &&
-                    p.size === product.size);
-                if (existingProduct) {
-                    existingProduct.quantity += product.quantity;
-                    existingProduct.price = product.price; // Update price if needed
+                const category = productPerformance.categories.find(c => c.category === product.category);
+                if (category) {
+                    const existingProduct = category.products.find(p => p.productId.toString() === product.productId.toString() &&
+                        p.size === product.size);
+                    if (existingProduct) {
+                        existingProduct.quantity += product.quantity;
+                        existingProduct.price = product.price; // Update price if needed
+                    } else {
+                        category.products.push({
+                            productId: product.productId,
+                            name: product.name,
+                            size: product.size,
+                            quantity: product.quantity,
+                            price: product.price
+                        } as IProduct);
+                    }
                 } else {
-                    productPerformance.products.push(product);
+                    productPerformance.categories.push({
+                        category: product.category,
+                        products: [{
+                            productId: product.productId,
+                            name: product.name,
+                            size: product.size,
+                            quantity: product.quantity,
+                            price: product.price
+                        } as IProduct]
+                    } as ICategory);
                 }
                 total += product.quantity * product.price;
             });
             productPerformance.total = total;
             await productPerformance.save();
         } else {
-            // Create new product performance
-            const total = products.reduce((sum, product) => sum + product.quantity * product.price, 0);
-            const newProductPerformance = new ProductPerformance({ date: startOfDay, products, total });
+            const categories: ICategory[] = [];
+            let total = 0;
+            products.forEach(product => {
+                const category = categories.find(c => c.category === product.category);
+                if (category) {
+                    category.products.push({
+                        productId: product.productId,
+                        name: product.name,
+                        size: product.size,
+                        quantity: product.quantity,
+                        price: product.price
+                    } as IProduct);
+                } else {
+                    categories.push({
+                        category: product.category,
+                        products: [{
+                            productId: product.productId,
+                            name: product.name,
+                            size: product.size,
+                            quantity: product.quantity,
+                            price: product.price
+                        } as IProduct]
+                    } as ICategory);
+                }
+                total += product.quantity * product.price;
+            });
+            const newProductPerformance = new ProductPerformance({ date: startOfDay, categories, total });
             await newProductPerformance.save();
         }
     } catch (error) {

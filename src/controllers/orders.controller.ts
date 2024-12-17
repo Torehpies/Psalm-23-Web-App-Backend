@@ -51,11 +51,12 @@ export const createOrder = async (req: Request, res: Response, next: NextFunctio
             name: product.name,
             quantity: product.Quantity,
             price: product.price,
-            size: product.size
+            size: product.size,
+            category: product.category 
         }));
         await updateProductPerformance(today, productData);
         
-        // console.log(productData)
+        console.log(productData)
         await newOrder.save();
         return next(CreateSuccess(200, "New Order Created", newOrder));
     } catch (error) {
@@ -83,7 +84,8 @@ export const updateOrder = async (req: Request, res: Response) => {
                 name: product.name,
                 quantity: product.Quantity,
                 price: product.Price,
-                size: product.size
+                size: product.size,
+                category: product.category // Add category
             }));
             await updateOrderPerformanceLogic(today, productData);
             await updateProductPerformance(today, productData);

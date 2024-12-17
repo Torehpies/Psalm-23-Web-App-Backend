@@ -17,6 +17,7 @@ import scrappingRouter from "./routes/scrapping.routes";
 import ordersRouter from "./routes/orders.routes";
 import orderPerformanceRouter from "./routes/OrderPerformance.routes";
 import approveUserRouter from "./routes/approveUser.routes";
+import productPerformanceRouter from "./routes/productPerformance.routes";
 
 const app = express();
 dotenv.config();
@@ -40,7 +41,8 @@ app.use("/api/user", userRoute);
 app.use("/api/usedSupplies", usedSuppliesRouter);
 app.use("/api/scrapping", scrappingRouter);
 app.use("/api/orders", ordersRouter);
-app.use("/api/orderPerformance", orderPerformanceRouter);
+// app.use("/api/orderPerformance", orderPerformanceRouter);
+app.use("/api/productPerformance", productPerformanceRouter);
 app.use("/api/approveUser", approveUserRouter);
 
 app.use((obj: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

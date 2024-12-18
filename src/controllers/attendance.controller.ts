@@ -8,8 +8,22 @@ export const getAllAttendances = async (_req: Request, res: Response, next: Next
         res.status(200).send(attendances);
     } catch (error) {
         next(error);
+        return;
     }
 };
+
+export const getAttendanceByUserId = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const attendances = await Attendance.find({ userId: req.params.id });
+        if (!attendances) {
+            res.status(404).send("Attendance not found");
+        } else {
+            res.status(200).send(attendances);
+        }
+    } catch (error) {
+        next(error);
+    }
+}
 
 export const getAttendanceById = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -54,27 +68,29 @@ export const timeOut = async (req: Request, res: Response, next: NextFunction) =
     try {
         const attendance = await Attendance.findById(req.params.id);
         if (!attendance) {
-            return next(res.status(404).send("Attendance not found"))
+            res.status(404).send("Attendance not found")
+        }else{
+
+            const timeOut = new Date(req.body.TimeOut);
+            attendance.TimeOut = timeOut;
+    
+            const timeIn = new Date(attendance.TimeIn);
+            const workHours = (timeOut.getTime() - timeIn.getTime()) / (1000 * 60 * 60); // Calculate work hours
+            attendance.workHours = workHours;
+    
+            await attendance.save();
+    
+            const user = await User.findById(attendance.userId);
+            if (user) {
+                user.totalWorkHours += workHours;
+                await user.save();
+            }
+    
+            res.status(200).send(`Updated attendance record with Timeout: ID ${attendance._id}`)
         }
 
-        const timeOut = new Date(req.body.TimeOut);
-        attendance.TimeOut = timeOut;
-
-        const timeIn = new Date(attendance.TimeIn);
-        const workHours = (timeOut.getTime() - timeIn.getTime()) / (1000 * 60 * 60); // Calculate work hours
-        attendance.workHours = workHours;
-
-        await attendance.save();
-
-        const user = await User.findById(attendance.userId);
-        if (user) {
-            user.totalWorkHours += workHours;
-            await user.save();
-        }
-
-        return next(res.status(200).send(`Updated attendance record with Timeout: ID ${attendance._id}`))
     } catch (error) {
-        return next(res.status(500).send("Something went wrong"))
+        res.status(500).send("Something went wrong")
     }
 };
 

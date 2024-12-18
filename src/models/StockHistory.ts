@@ -25,6 +25,11 @@ const StockHistorySchema = new mongoose.Schema(
             type: Date,
             default: Date.now
         },
+        ExpiryDate: {
+
+            type: Date,
+            required: false
+        },
         EmployeeId: {
             type: Schema.Types.ObjectId,
             ref: "Employees",

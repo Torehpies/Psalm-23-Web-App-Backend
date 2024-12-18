@@ -1,4 +1,3 @@
-
 import { Request, Response } from "express";
 import StockHistory from "../models/StockHistory";
 import Supplies from "../models/supplies";

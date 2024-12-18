@@ -122,7 +122,7 @@ export const sendEmail = async (req: Request, res: Response, next: NextFunction)
 	<h1>Password Reset Request</h1>
 	<p>Dear ${user.firstName},</p>
 	<p>We have received a request to reset your password for your account with Psalm 23 Cafe. Please click the button to complete your request.</p>
-	<a href=${process.env.LIVE_URL}/reset/${token}>
+	<a href=${process.env.LIVE_URL}/reset?token=${token}>
 		<button style = "background-color: #4CAF50; color: white; padding: 14px 20px; border: none;
 		cursor: pointer; border-radius: 4px;">Reset Password</button></a>
 	<p>Please note that this link is only valid for 5 minutes.</p>

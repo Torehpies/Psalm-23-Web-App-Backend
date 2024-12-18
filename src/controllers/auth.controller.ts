@@ -55,7 +55,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 			return next(CreateError(403, "Account is disabled"));
 		}
 		if (user.status === 'rejected') {
-			return next(CreateError(403, "Account Registration is rejected. "));
+			return next(CreateError(403, "Account Registration rejected, please contact the manager"));
 		}
 		
 		const isPasswordCorrect = await bcrypt.compare(req.body.password, user.password);
@@ -66,7 +66,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 		const token = jwt.sign(
 			{id: user._id, role: user.role},
 			process.env.JWT_SECRET as string,
-			{expiresIn: "5hr"},
+			// {expiresIn: 10},
 		)
 
 		 res.status(200).json({

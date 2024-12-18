@@ -24,7 +24,7 @@ export const getAttendanceById = async (req: Request, res: Response, next: NextF
     }
 };
 
-export const createAttendance = async (req: Request, res: Response, next: NextFunction) => {
+export const timeIn = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userId = req.body.userId;
         // console.log(`Looking for user with ID: ${userId}`);
@@ -32,38 +32,72 @@ export const createAttendance = async (req: Request, res: Response, next: NextFu
         const user = await User.findById(userId);
         if (!user) {
             // console.log(`User with ID: ${userId} not found`);
-            return next(res.status(404).send("User not found"));
+            res.status(404).send("User not found");
         }
 
-        const newAttendance = new Attendance(req.body);
+        const newAttendance = new Attendance({
+            userId: userId,
+            TimeIn: req.body.TimeIn,
+            workHours: 0
+        });
+
         await newAttendance.save();
 
-        const [inHours, inMinutes] = newAttendance.TimeIn.split(':').map(Number);
-        const [outHours, outMinutes] = newAttendance.Timeout.split(':').map(Number);
-        const timeInMinutes = inHours * 60 + inMinutes;
-        let timeOutMinutes = outHours * 60 + outMinutes;
-        if (timeOutMinutes <= timeInMinutes) {
-            timeOutMinutes += 24 * 60; // Adjust for times past midnight or exactly at midnight
-        }
-        const workHours = (timeOutMinutes - timeInMinutes) / 60;
-        user.totalWorkHours += workHours;
-        await user.save();
-
-        return next(res.status(201).send(`Created a new attendance record: ID ${newAttendance._id}`));
+        res.status(201).send(`Created a new attendance record with TimeIn: ID ${newAttendance._id}`);
     } catch (error) {
-        console.error(error);
-        return next(error);
+        // console.error(error);
+        next(error);
+    }
+};
+
+export const timeOut = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const attendance = await Attendance.findById(req.params.id);
+        if (!attendance) {
+            return next(res.status(404).send("Attendance not found"))
+        }
+
+        const timeOut = new Date(req.body.TimeOut);
+        attendance.TimeOut = timeOut;
+
+        const timeIn = new Date(attendance.TimeIn);
+        const workHours = (timeOut.getTime() - timeIn.getTime()) / (1000 * 60 * 60); // Calculate work hours
+        attendance.workHours = workHours;
+
+        await attendance.save();
+
+        const user = await User.findById(attendance.userId);
+        if (user) {
+            user.totalWorkHours += workHours;
+            await user.save();
+        }
+
+        return next(res.status(200).send(`Updated attendance record with Timeout: ID ${attendance._id}`))
+    } catch (error) {
+        return next(res.status(500).send("Something went wrong"))
     }
 };
 
 export const updateAttendance = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const attendance = await Attendance.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        const attendance = await Attendance.findById(req.params.id);
         if (!attendance) {
-            res.status(404).send("Attendance not found");
-        } else {
-            res.status(200).send(`Updated attendance record: ID ${attendance._id}`);
+            return next(res.status(404).send("Attendance not found"));
         }
+
+        if (req.body.TimeIn || req.body.Timeout) {
+            const timeIn = req.body.TimeIn ? new Date(req.body.TimeIn) : new Date(attendance.TimeIn);
+            const timeOut = req.body.Timeout ? new Date(req.body.Timeout) : attendance.TimeOut ? new Date(attendance.TimeOut) : new Date();
+            const workHours = (timeOut.getTime() - timeIn.getTime()) / (1000 * 60 * 60); // Recalculate work hours
+            req.body.workHours = workHours;
+        }
+
+        const updatedAttendance = await Attendance.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        if (!updatedAttendance) {
+            return next(res.status(404).send("Attendance not found"));
+        }
+
+        res.status(200).send(`Updated attendance record: ID ${updatedAttendance._id}`);
     } catch (error) {
         next(error);
     }

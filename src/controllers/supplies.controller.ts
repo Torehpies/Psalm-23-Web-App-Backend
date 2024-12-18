@@ -6,8 +6,8 @@ export const getAllSupplies = async (req: Request, res: Response, next: NextFunc
         const supplies = await Supplies.find({});
         res.status(200).send(supplies);
     } catch (error) {
-        res.status(500).send("Internal Server Error");
-        console.error(error);
+        res.status(500).send("Error in fetching supplies");
+        // console.error(error);
     }
 };
 

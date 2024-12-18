@@ -18,7 +18,13 @@ export const verifyToken = (req: Request, res: Response, next: NextFunction) => 
             // console.log("The decoded user is :", req.user);
             next();
         } catch (error) {
-            return next(CreateError(400, "Token is not valid"));
+            if (error instanceof jwt.TokenExpiredError) {
+                return next(CreateError(401, "Token has expired"));
+            } else if (error instanceof jwt.JsonWebTokenError) {
+                return next(CreateError(400, "Token is not valid"));
+            } else {
+                return next(CreateError(500, "Internal server error"));
+            }
         }
     }else{
         return next(CreateError(401, "No token, authorization denied"));

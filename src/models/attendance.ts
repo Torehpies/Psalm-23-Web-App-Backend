@@ -12,12 +12,15 @@ const AttendanceSchema = new mongoose.Schema(
             default: Date.now
         },
         TimeIn: {
-            type: String,
+            type: Date,
             required: true
         },
-        Timeout: {
-            type: String,
-            required: true
+        TimeOut: {
+            type: Date
+        },
+        workHours: {
+            type: Number,
+            default: 0
         }
     },
     {

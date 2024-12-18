@@ -49,7 +49,7 @@ app.use((obj: any, req: express.Request, res: express.Response, next: express.Ne
 	const statusCode = obj.status || 500;
 	const message = obj.message || "Something went wrong";
 	res.status(statusCode).json({
-		success: [200, 201,204].some( a => a === obj.status) ? true : false,
+		success: [200, 201, 204].some( a => a === obj.status) ? true : false,
 		status: statusCode,
 		message: message,
 		data: obj.data
